@@ -22,6 +22,7 @@ export type Database = {
           error_message: string | null
           favicon_url: string | null
           id: string
+          memo: string | null
           original_title: string | null
           raw_content: string | null
           reliability_score: number | null
@@ -41,6 +42,7 @@ export type Database = {
           error_message?: string | null
           favicon_url?: string | null
           id?: string
+          memo?: string | null
           original_title?: string | null
           raw_content?: string | null
           reliability_score?: number | null
@@ -60,6 +62,7 @@ export type Database = {
           error_message?: string | null
           favicon_url?: string | null
           id?: string
+          memo?: string | null
           original_title?: string | null
           raw_content?: string | null
           reliability_score?: number | null
@@ -96,6 +99,48 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          favicon_url: string | null
+          fetch_interval: string
+          id: string
+          is_active: boolean
+          last_fetched_at: string | null
+          source_domain: string | null
+          source_name: string
+          source_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          favicon_url?: string | null
+          fetch_interval?: string
+          id?: string
+          is_active?: boolean
+          last_fetched_at?: string | null
+          source_domain?: string | null
+          source_name: string
+          source_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          favicon_url?: string | null
+          fetch_interval?: string
+          id?: string
+          is_active?: boolean
+          last_fetched_at?: string | null
+          source_domain?: string | null
+          source_name?: string
+          source_url?: string
           updated_at?: string
           user_id?: string
         }

@@ -2,3 +2,9 @@ project_id = "nsiiqmqgtnjbywgatnec"
 
 [functions.analyze-insight]
 verify_jwt = false
+
+[functions.recommend-content]
+verify_jwt = false
+
+[functions.fetch-subscription]
+verify_jwt = false
