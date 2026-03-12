@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      insights: {
+        Row: {
+          ai_summary: string | null
+          ai_title: string | null
+          created_at: string
+          error_message: string | null
+          favicon_url: string | null
+          id: string
+          original_title: string | null
+          raw_content: string | null
+          reliability_score: number | null
+          source_domain: string | null
+          source_type: string | null
+          status: string
+          stocks: Json | null
+          themes: Json | null
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          ai_title?: string | null
+          created_at?: string
+          error_message?: string | null
+          favicon_url?: string | null
+          id?: string
+          original_title?: string | null
+          raw_content?: string | null
+          reliability_score?: number | null
+          source_domain?: string | null
+          source_type?: string | null
+          status?: string
+          stocks?: Json | null
+          themes?: Json | null
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          ai_title?: string | null
+          created_at?: string
+          error_message?: string | null
+          favicon_url?: string | null
+          id?: string
+          original_title?: string | null
+          raw_content?: string | null
+          reliability_score?: number | null
+          source_domain?: string | null
+          source_type?: string | null
+          status?: string
+          stocks?: Json | null
+          themes?: Json | null
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
