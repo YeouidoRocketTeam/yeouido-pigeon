@@ -56,7 +56,7 @@ const Login = () => {
         className="w-full max-w-sm text-center"
       >
         <h1 className="text-4xl font-bold tracking-tighter text-foreground">
-          Insight
+          KITCH
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
           흩어진 투자 정보를 AI로 요약하고,
