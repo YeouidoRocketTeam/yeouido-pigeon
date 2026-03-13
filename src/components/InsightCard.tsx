@@ -116,12 +116,14 @@ const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
           </span>
         ))}
         {stocks.map((stock: string) => (
-          <span
+          <a
             key={stock}
-            className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums"
+            href={`kiwoomhero://stock?name=${encodeURIComponent(stock)}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
           >
             {stock}
-          </span>
+          </a>
         ))}
       </div>
 

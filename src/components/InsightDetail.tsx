@@ -128,9 +128,13 @@ const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
               <h2 className="text-sm font-semibold text-foreground mb-3">관련 종목</h2>
               <div className="flex flex-wrap gap-2">
                 {stocks.map((stock: string) => (
-                  <span key={stock} className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums">
+                  <a
+                    key={stock}
+                    href={`kiwoomhero://stock?name=${encodeURIComponent(stock)}`}
+                    className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
+                  >
                     {stock}
-                  </span>
+                  </a>
                 ))}
               </div>
             </div>
