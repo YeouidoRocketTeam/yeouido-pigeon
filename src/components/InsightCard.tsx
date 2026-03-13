@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Globe } from "lucide-react";
+import MoveToProject from "@/components/MoveToProject";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -127,19 +128,27 @@ const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
         ))}
       </div>
 
-      {/* URL link */}
-      {insight.url && (
-        <a
-          href={insight.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="mt-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-        >
-          <ExternalLink className="w-3 h-3" />
-          원문 보기
-        </a>
-      )}
+      {/* Footer: URL link + Move */}
+      <div className="flex items-center justify-between mt-3">
+        {insight.url ? (
+          <a
+            href={insight.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ExternalLink className="w-3 h-3" />
+            원문 보기
+          </a>
+        ) : <span />}
+        <div onClick={(e) => e.stopPropagation()}>
+          <MoveToProject
+            insightId={insight.id}
+            currentProjectId={(insight as any).project_id ?? null}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 };

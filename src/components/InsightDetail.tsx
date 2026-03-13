@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MemoSidebar from "@/components/MemoSidebar";
 import RecommendedContent from "@/components/RecommendedContent";
+import MoveToProject from "@/components/MoveToProject";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -55,9 +56,15 @@ const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
           <ArrowLeft className="h-4 w-4" />
           돌아가기
         </button>
-        <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <MoveToProject
+            insightId={insight.id}
+            currentProjectId={(insight as any).project_id ?? null}
+          />
+          <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
