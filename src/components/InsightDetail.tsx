@@ -56,10 +56,15 @@ const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
           <ArrowLeft className="h-4 w-4" />
           돌아가기
         </button>
-        <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+        <div className="flex items-center gap-1">
+          <MoveToProject
+            insightId={insight.id}
+            currentProjectId={(insight as any).project_id ?? null}
+          />
+          <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         {/* Main content */}
