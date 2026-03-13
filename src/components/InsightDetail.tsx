@@ -65,6 +65,7 @@ const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         {/* Main content */}
