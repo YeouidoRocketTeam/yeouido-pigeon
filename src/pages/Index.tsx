@@ -103,19 +103,21 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Insight</h1>
-          <div className="flex items-center gap-2">
-            <SubscriptionManager />
-            <AddInsightDialog onAdded={fetchInsights} />
-            <button
-              onClick={signOut}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          </div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
+          <button
+            onClick={signOut}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
         </div>
       </header>
+
+      {/* Action buttons */}
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-2 flex items-center gap-2">
+        <AddInsightDialog onAdded={fetchInsights} />
+        <SubscriptionManager />
+      </div>
 
       {/* Content */}
       <main className="max-w-2xl mx-auto px-4 py-6">
