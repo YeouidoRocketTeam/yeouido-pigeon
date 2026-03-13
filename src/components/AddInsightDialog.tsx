@@ -9,9 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface AddInsightDialogProps {
   onAdded: () => void;
+  projectId?: string | null;
 }
 
-const AddInsightDialog = ({ onAdded }: AddInsightDialogProps) => {
+const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,16 +26,21 @@ const AddInsightDialog = ({ onAdded }: AddInsightDialogProps) => {
     setIsSubmitting(true);
 
     try {
-      // Insert the insight with processing status
+      const insertData: any = {
+        user_id: user.id,
+        url: url.trim(),
+        status: "processing",
+        source_domain: new URL(url.trim()).hostname.replace("www.", ""),
+        favicon_url: `https://www.google.com/s2/favicons?domain=${new URL(url.trim()).hostname}&sz=32`,
+      };
+
+      if (projectId) {
+        insertData.project_id = projectId;
+      }
+
       const { data: insight, error: insertError } = await supabase
         .from("insights")
-        .insert({
-          user_id: user.id,
-          url: url.trim(),
-          status: "processing",
-          source_domain: new URL(url.trim()).hostname.replace("www.", ""),
-          favicon_url: `https://www.google.com/s2/favicons?domain=${new URL(url.trim()).hostname}&sz=32`,
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -45,7 +51,6 @@ const AddInsightDialog = ({ onAdded }: AddInsightDialogProps) => {
       setIsOpen(false);
       onAdded();
 
-      // Trigger AI analysis via edge function
       supabase.functions.invoke("analyze-insight", {
         body: { insightId: insight.id, url: url.trim() },
       }).catch(console.error);

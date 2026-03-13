@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { LogOut } from "lucide-react";
+import { LogOut, FolderOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import InsightCard from "@/components/InsightCard";
@@ -9,6 +9,8 @@ import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
 import SkeletonCard from "@/components/SkeletonCard";
 import SubscriptionManager from "@/components/SubscriptionManager";
+import SearchBar from "@/components/SearchBar";
+import ProjectSidebar from "@/components/ProjectSidebar";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -35,19 +37,28 @@ const Index = () => {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase
+    let query = supabase
       .from("insights")
       .select("*")
       .order("created_at", { ascending: false });
 
+    if (selectedProjectId) {
+      query = query.eq("project_id", selectedProjectId);
+    }
+
+    const { data } = await query;
     if (data) setInsights(data);
     setLoading(false);
-  }, [user]);
+  }, [user, selectedProjectId]);
 
   useEffect(() => {
+    setLoading(true);
     fetchInsights();
 
     const channel = supabase
@@ -62,12 +73,28 @@ const Index = () => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchInsights]);
 
-  // Group insights by date
+  // Filter by search query
+  const filteredInsights = useMemo(() => {
+    if (!searchQuery.trim()) return insights;
+    const q = searchQuery.toLowerCase();
+    return insights.filter((ins) => {
+      const fields = [
+        ins.ai_title, ins.original_title, ins.ai_summary,
+        ins.source_domain, ins.memo,
+      ];
+      if (fields.some((f) => f?.toLowerCase().includes(q))) return true;
+      const themes = (ins.themes as string[]) || [];
+      const stocks = (ins.stocks as string[]) || [];
+      return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
+    });
+  }, [insights, searchQuery]);
+
+  // Group by date
   const groupedInsights = useMemo(() => {
     const groups: { label: string; items: Insight[] }[] = [];
     const map = new Map<string, Insight[]>();
 
-    for (const insight of insights) {
+    for (const insight of filteredInsights) {
       const label = formatDateGroup(insight.created_at);
       if (!map.has(label)) {
         map.set(label, []);
@@ -77,7 +104,7 @@ const Index = () => {
     }
 
     return groups;
-  }, [insights]);
+  }, [filteredInsights]);
 
   if (selectedInsight) {
     return (
@@ -100,10 +127,26 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        selectedProjectId={selectedProjectId}
+        onSelectProject={setSelectedProjectId}
+        isOpen={projectSidebarOpen}
+        onClose={() => setProjectSidebarOpen(false)}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setProjectSidebarOpen(true)}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+            >
+              <FolderOpen className="h-5 w-5" />
+            </button>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
+          </div>
           <button
             onClick={signOut}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
@@ -113,9 +156,14 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Search */}
+      <div className="max-w-2xl mx-auto px-4 pt-4">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      </div>
+
       {/* Action buttons */}
-      <div className="max-w-2xl mx-auto px-4 pt-4 pb-2 flex items-center gap-2">
-        <AddInsightDialog onAdded={fetchInsights} />
+      <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
+        <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
         <SubscriptionManager />
       </div>
 
@@ -127,8 +175,14 @@ const Index = () => {
               <SkeletonCard key={i} />
             ))}
           </div>
-        ) : insights.length === 0 ? (
-          <EmptyState />
+        ) : filteredInsights.length === 0 ? (
+          searchQuery ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground">"{searchQuery}"에 대한 결과가 없습니다</p>
+            </div>
+          ) : (
+            <EmptyState />
+          )
         ) : (
           <div className="space-y-8">
             {groupedInsights.map((group) => (

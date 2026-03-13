@@ -24,6 +24,7 @@ export type Database = {
           id: string
           memo: string | null
           original_title: string | null
+          project_id: string | null
           raw_content: string | null
           reliability_score: number | null
           source_domain: string | null
@@ -44,6 +45,7 @@ export type Database = {
           id?: string
           memo?: string | null
           original_title?: string | null
+          project_id?: string | null
           raw_content?: string | null
           reliability_score?: number | null
           source_domain?: string | null
@@ -64,6 +66,7 @@ export type Database = {
           id?: string
           memo?: string | null
           original_title?: string | null
+          project_id?: string | null
           raw_content?: string | null
           reliability_score?: number | null
           source_domain?: string | null
@@ -75,7 +78,15 @@ export type Database = {
           url?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -99,6 +110,36 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
           updated_at?: string
           user_id?: string
         }
