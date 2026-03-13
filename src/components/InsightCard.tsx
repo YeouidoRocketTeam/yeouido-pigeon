@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Globe } from "lucide-react";
+import MoveToProject from "@/components/MoveToProject";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
