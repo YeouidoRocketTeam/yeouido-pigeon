@@ -72,6 +72,9 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           돌아가기
         </button>
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={toggleFavorite}>
+            <Star className={`h-4 w-4 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+          </Button>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}
