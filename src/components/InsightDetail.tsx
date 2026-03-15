@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
