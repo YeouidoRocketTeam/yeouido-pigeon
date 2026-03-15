@@ -121,29 +121,37 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
         </p>
       )}
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {themes.map((theme: string) => (
-          <span
-            key={theme}
-            className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary"
-          >
-            {theme}
-          </span>
-        ))}
-        {stocks.map((stock: string) => (
-          <a
-            key={stock}
-            href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
-          >
-            {stock}
-          </a>
-        ))}
-      </div>
+      {/* Themes */}
+      {themes.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {themes.map((theme: string) => (
+            <span
+              key={theme}
+              className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary"
+            >
+              {theme}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Stocks */}
+      {stocks.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {stocks.map((stock: string) => (
+            <a
+              key={stock}
+              href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
+            >
+              {stock}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* Footer: URL link + Actions */}
       <div className="flex items-center justify-between mt-3">
