@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { LogOut, FolderOpen } from "lucide-react";
+import { FolderOpen, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import InsightCard from "@/components/InsightCard";
@@ -8,9 +8,10 @@ import InsightDetail from "@/components/InsightDetail";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
 import SkeletonCard from "@/components/SkeletonCard";
-import SubscriptionManager from "@/components/SubscriptionManager";
+import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
 import ProjectSidebar from "@/components/ProjectSidebar";
+import SettingsDropdown from "@/components/SettingsDropdown";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -33,7 +34,7 @@ const formatDateGroup = (dateStr: string): string => {
 };
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
@@ -147,24 +148,26 @@ const Index = () => {
             </button>
             <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
           </div>
-          <button
-            onClick={signOut}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+              <Bell className="h-5 w-5" />
+            </button>
+            <SettingsDropdown />
+          </div>
         </div>
       </header>
 
+      {/* Story-style subscriptions */}
+      <SubscriptionStories />
+
       {/* Search */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
+      <div className="max-w-2xl mx-auto px-4 pt-3">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
       {/* Action buttons */}
       <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
         <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
-        <SubscriptionManager />
       </div>
 
       {/* Content */}
