@@ -198,6 +198,7 @@ const Index = () => {
                       insight={insight}
                       index={i}
                       onClick={() => setSelectedInsight(insight)}
+                      onDeleted={fetchInsights}
                     />
                   ))}
                 </div>
