@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Globe, Trash2 } from "lucide-react";
+import { ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import MoveToProject from "@/components/MoveToProject";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
