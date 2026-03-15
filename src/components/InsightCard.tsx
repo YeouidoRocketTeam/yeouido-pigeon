@@ -119,7 +119,9 @@ const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
         {stocks.map((stock: string) => (
           <a
             key={stock}
-            href={`kiwoomhero://stock?name=${encodeURIComponent(stock)}`}
+            href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
           >
