@@ -31,9 +31,21 @@ interface InsightCardProps {
   onDeleted?: () => void;
 }
 
-const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
+const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
+  const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase.from("insights").delete().eq("id", insight.id);
+    if (error) {
+      toast({ title: "삭제 실패", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "삭제 완료" });
+      onDeleted?.();
+    }
+  };
 
   return (
     <motion.div
