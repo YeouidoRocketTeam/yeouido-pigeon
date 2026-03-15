@@ -81,7 +81,7 @@ const Index = () => {
 
     // Filter favorites
     if (showFavorites) {
-      result = result.filter((ins) => ins.is_favorited);
+      result = result.filter((ins) => (ins as any).is_favorited);
     }
 
     if (!searchQuery.trim()) return result;
