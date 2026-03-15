@@ -148,12 +148,12 @@ const Index = () => {
             </button>
             <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
           </div>
-          <button
-            onClick={signOut}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+              <Bell className="h-5 w-5" />
+            </button>
+            <SettingsDropdown />
+          </div>
         </div>
       </header>
 
