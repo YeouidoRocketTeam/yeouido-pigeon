@@ -41,6 +41,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
@@ -76,9 +77,16 @@ const Index = () => {
 
   // Filter by search query
   const filteredInsights = useMemo(() => {
-    if (!searchQuery.trim()) return insights;
+    let result = insights;
+
+    // Filter favorites
+    if (showFavorites) {
+      result = result.filter((ins) => ins.is_favorited);
+    }
+
+    if (!searchQuery.trim()) return result;
     const q = searchQuery.toLowerCase();
-    return insights.filter((ins) => {
+    return result.filter((ins) => {
       const fields = [
         ins.ai_title, ins.original_title, ins.ai_summary,
         ins.source_domain, ins.memo,
@@ -88,7 +96,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery]);
+  }, [insights, searchQuery, showFavorites]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
@@ -119,6 +127,7 @@ const Index = () => {
                 setSelectedInsight(null);
                 fetchInsights();
               }}
+              onUpdated={fetchInsights}
             />
           </AnimatePresence>
         </div>
@@ -131,9 +140,11 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={setSelectedProjectId}
+        onSelectProject={(id) => { setSelectedProjectId(id); setShowFavorites(false); }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
+        showFavorites={showFavorites}
+        onToggleFavorites={setShowFavorites}
       />
 
       {/* Header */}

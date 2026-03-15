@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FolderPlus, Folder, Trash2, X, Check, MoreHorizontal, Inbox } from "lucide-react";
+import { FolderPlus, Folder, Trash2, X, Check, MoreHorizontal, Inbox, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -23,10 +23,12 @@ interface Project {
 }
 
 interface ProjectSidebarProps {
-  selectedProjectId: string | null; // null means "all"
+  selectedProjectId: string | null; // null means "all", "favorites" means favorites
   onSelectProject: (projectId: string | null) => void;
   isOpen: boolean;
   onClose: () => void;
+  showFavorites?: boolean;
+  onToggleFavorites?: (show: boolean) => void;
 }
 
 const PROJECT_COLORS = [
@@ -35,7 +37,7 @@ const PROJECT_COLORS = [
 
 const PROJECT_ICONS = ["📁", "💼", "📊", "🏦", "🔬", "🌍", "⚡", "🎯", "📈", "💡"];
 
-const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose }: ProjectSidebarProps) => {
+const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, showFavorites, onToggleFavorites }: ProjectSidebarProps) => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -125,6 +127,19 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose }:
               >
                 <Inbox className="h-4 w-4" />
                 <span>전체 인사이트</span>
+              </button>
+
+              {/* Favorites */}
+              <button
+                onClick={() => { onToggleFavorites?.(true); onSelectProject(null); onClose(); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  showFavorites
+                    ? "bg-yellow-400/10 text-yellow-600 font-medium"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <Star className={`h-4 w-4 ${showFavorites ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                <span>즐겨찾기</span>
               </button>
 
               {projects.map((project) => (

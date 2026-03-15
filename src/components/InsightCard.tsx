@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Globe, Trash2 } from "lucide-react";
+import { ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import MoveToProject from "@/components/MoveToProject";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,18 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+  const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = !isFavorited;
+    setIsFavorited(newValue);
+    const { error } = await supabase.from("insights").update({ is_favorited: newValue }).eq("id", insight.id);
+    if (error) {
+      setIsFavorited(!newValue);
+      toast({ title: "즐겨찾기 실패", variant: "destructive" });
+    }
+  };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -168,6 +181,12 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
           </a>
         ) : <span />}
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={toggleFavorite}
+            className="p-1.5 transition-colors rounded-md hover:bg-muted"
+          >
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-foreground"}`} />
+          </button>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}

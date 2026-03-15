@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Globe, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -23,12 +24,26 @@ interface InsightDetailProps {
   insight: Insight;
   onBack: () => void;
   onDeleted: () => void;
+  onUpdated?: () => void;
 }
 
-const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
+const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailProps) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+  const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+
+  const toggleFavorite = async () => {
+    const newValue = !isFavorited;
+    setIsFavorited(newValue);
+    const { error } = await supabase.from("insights").update({ is_favorited: newValue }).eq("id", insight.id);
+    if (error) {
+      setIsFavorited(!newValue);
+      toast({ title: "즐겨찾기 실패", description: error.message, variant: "destructive" });
+    } else {
+      onUpdated?.();
+    }
+  };
 
   const handleDelete = async () => {
     const { error } = await supabase.from("insights").delete().eq("id", insight.id);
@@ -57,6 +72,9 @@ const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
           돌아가기
         </button>
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={toggleFavorite}>
+            <Star className={`h-4 w-4 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+          </Button>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}
