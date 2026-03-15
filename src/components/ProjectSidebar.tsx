@@ -37,7 +37,7 @@ const PROJECT_COLORS = [
 
 const PROJECT_ICONS = ["📁", "💼", "📊", "🏦", "🔬", "🌍", "⚡", "🎯", "📈", "💡"];
 
-const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose }: ProjectSidebarProps) => {
+const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, showFavorites, onToggleFavorites }: ProjectSidebarProps) => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isCreating, setIsCreating] = useState(false);
