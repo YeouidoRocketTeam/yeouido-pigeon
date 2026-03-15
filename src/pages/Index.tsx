@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { FolderOpen, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import InsightCard from "@/components/InsightCard";
@@ -35,6 +36,7 @@ const formatDateGroup = (dateStr: string): string => {
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
@@ -160,7 +162,10 @@ const Index = () => {
             <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
           </div>
           <div className="flex items-center gap-1">
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+            <button
+              onClick={() => navigate("/notifications")}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+            >
               <Bell className="h-5 w-5" />
             </button>
             <SettingsDropdown />
