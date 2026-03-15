@@ -78,10 +78,12 @@ const Index = () => {
   // Filter by search query
   const filteredInsights = useMemo(() => {
     let result = insights;
+    console.log("showFavorites:", showFavorites, "insights count:", insights.length);
 
     // Filter favorites
     if (showFavorites) {
       result = result.filter((ins) => (ins as any).is_favorited);
+      console.log("after favorites filter:", result.length);
     }
 
     if (!searchQuery.trim()) return result;
