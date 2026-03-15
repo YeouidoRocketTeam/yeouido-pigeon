@@ -28,6 +28,7 @@ interface InsightCardProps {
   insight: Insight;
   index: number;
   onClick?: () => void;
+  onDeleted?: () => void;
 }
 
 const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
