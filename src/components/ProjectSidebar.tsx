@@ -131,7 +131,7 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
 
               {/* Favorites */}
               <button
-                onClick={() => { onToggleFavorites?.(true); onSelectProject(null); onClose(); }}
+                onClick={() => { onToggleFavorites?.(true); onClose(); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   showFavorites
                     ? "bg-yellow-400/10 text-yellow-600 font-medium"
