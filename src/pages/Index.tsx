@@ -41,6 +41,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
