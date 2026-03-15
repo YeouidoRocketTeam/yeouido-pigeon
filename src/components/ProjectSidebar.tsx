@@ -118,9 +118,9 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
             <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
               {/* All insights */}
               <button
-                onClick={() => { onSelectProject(null); onClose(); }}
+                onClick={() => { onSelectProject(null); onToggleFavorites?.(false); onClose(); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  selectedProjectId === null
+                  selectedProjectId === null && !showFavorites
                     ? "bg-primary/10 text-primary font-medium"
                     : "text-foreground hover:bg-muted"
                 }`}
@@ -131,7 +131,7 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
 
               {/* Favorites */}
               <button
-                onClick={() => { onToggleFavorites?.(true); onSelectProject(null); onClose(); }}
+                onClick={() => { onToggleFavorites?.(true); onClose(); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   showFavorites
                     ? "bg-yellow-400/10 text-yellow-600 font-medium"

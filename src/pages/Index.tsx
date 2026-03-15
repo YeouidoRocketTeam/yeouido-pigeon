@@ -81,7 +81,7 @@ const Index = () => {
 
     // Filter favorites
     if (showFavorites) {
-      result = result.filter((ins) => ins.is_favorited);
+      result = result.filter((ins) => (ins as any).is_favorited);
     }
 
     if (!searchQuery.trim()) return result;
@@ -140,11 +140,11 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={(id) => { setSelectedProjectId(id); setShowFavorites(false); }}
+        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) setShowFavorites(false); }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
         showFavorites={showFavorites}
-        onToggleFavorites={setShowFavorites}
+        onToggleFavorites={(show) => { setShowFavorites(show); if (show) setSelectedProjectId(null); }}
       />
 
       {/* Header */}
