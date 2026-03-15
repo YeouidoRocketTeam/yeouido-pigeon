@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import MoveToProject from "@/components/MoveToProject";
