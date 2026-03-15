@@ -35,6 +35,18 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+  const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = !isFavorited;
+    setIsFavorited(newValue);
+    const { error } = await supabase.from("insights").update({ is_favorited: newValue }).eq("id", insight.id);
+    if (error) {
+      setIsFavorited(!newValue);
+      toast({ title: "즐겨찾기 실패", variant: "destructive" });
+    }
+  };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
