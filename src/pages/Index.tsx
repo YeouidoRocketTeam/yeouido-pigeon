@@ -36,6 +36,7 @@ const formatDateGroup = (dateStr: string): string => {
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
