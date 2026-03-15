@@ -91,6 +91,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          insight_id: string | null
+          is_read: boolean
+          message: string
+          stock_changes: Json
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_id?: string | null
+          is_read?: boolean
+          message: string
+          stock_changes?: Json
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_id?: string | null
+          is_read?: boolean
+          message?: string
+          stock_changes?: Json
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "insights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
