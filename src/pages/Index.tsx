@@ -127,6 +127,7 @@ const Index = () => {
                 setSelectedInsight(null);
                 fetchInsights();
               }}
+              onUpdated={fetchInsights}
             />
           </AnimatePresence>
         </div>
