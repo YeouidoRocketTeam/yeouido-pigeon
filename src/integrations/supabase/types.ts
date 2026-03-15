@@ -22,6 +22,7 @@ export type Database = {
           error_message: string | null
           favicon_url: string | null
           id: string
+          is_favorited: boolean
           memo: string | null
           original_title: string | null
           project_id: string | null
@@ -43,6 +44,7 @@ export type Database = {
           error_message?: string | null
           favicon_url?: string | null
           id?: string
+          is_favorited?: boolean
           memo?: string | null
           original_title?: string | null
           project_id?: string | null
@@ -64,6 +66,7 @@ export type Database = {
           error_message?: string | null
           favicon_url?: string | null
           id?: string
+          is_favorited?: boolean
           memo?: string | null
           original_title?: string | null
           project_id?: string | null
