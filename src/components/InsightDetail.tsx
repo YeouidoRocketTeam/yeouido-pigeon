@@ -23,6 +23,7 @@ interface InsightDetailProps {
   insight: Insight;
   onBack: () => void;
   onDeleted: () => void;
+  onUpdated?: () => void;
 }
 
 const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
