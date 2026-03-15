@@ -132,9 +132,11 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={setSelectedProjectId}
+        onSelectProject={(id) => { setSelectedProjectId(id); setShowFavorites(false); }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
+        showFavorites={showFavorites}
+        onToggleFavorites={setShowFavorites}
       />
 
       {/* Header */}
