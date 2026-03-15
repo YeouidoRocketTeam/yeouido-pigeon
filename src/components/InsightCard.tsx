@@ -145,7 +145,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
         ))}
       </div>
 
-      {/* Footer: URL link + Move */}
+      {/* Footer: URL link + Actions */}
       <div className="flex items-center justify-between mt-3">
         {insight.url ? (
           <a
@@ -159,11 +159,17 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
             원문 보기
           </a>
         ) : <span />}
-        <div onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}
           />
+          <button
+            onClick={handleDelete}
+            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </motion.div>
