@@ -58,6 +58,14 @@ const App = () => (
               }
             />
             <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/login"
               element={
                 <PublicRoute>
