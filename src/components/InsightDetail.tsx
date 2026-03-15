@@ -26,10 +26,23 @@ interface InsightDetailProps {
   onUpdated?: () => void;
 }
 
-const InsightDetail = ({ insight, onBack, onDeleted }: InsightDetailProps) => {
+const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailProps) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+  const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+
+  const toggleFavorite = async () => {
+    const newValue = !isFavorited;
+    setIsFavorited(newValue);
+    const { error } = await supabase.from("insights").update({ is_favorited: newValue }).eq("id", insight.id);
+    if (error) {
+      setIsFavorited(!newValue);
+      toast({ title: "즐겨찾기 실패", description: error.message, variant: "destructive" });
+    } else {
+      onUpdated?.();
+    }
+  };
 
   const handleDelete = async () => {
     const { error } = await supabase.from("insights").delete().eq("id", insight.id);
