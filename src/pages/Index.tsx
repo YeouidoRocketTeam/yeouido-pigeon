@@ -157,15 +157,17 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Story-style subscriptions */}
+      <SubscriptionStories />
+
       {/* Search */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
+      <div className="max-w-2xl mx-auto px-4 pt-3">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
       {/* Action buttons */}
       <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
         <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
-        <SubscriptionManager />
       </div>
 
       {/* Content */}
