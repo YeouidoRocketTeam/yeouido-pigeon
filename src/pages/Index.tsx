@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { LogOut, FolderOpen } from "lucide-react";
+import { FolderOpen, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import InsightCard from "@/components/InsightCard";
@@ -8,9 +8,10 @@ import InsightDetail from "@/components/InsightDetail";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
 import SkeletonCard from "@/components/SkeletonCard";
-import SubscriptionManager from "@/components/SubscriptionManager";
+import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
 import ProjectSidebar from "@/components/ProjectSidebar";
+import SettingsDropdown from "@/components/SettingsDropdown";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
