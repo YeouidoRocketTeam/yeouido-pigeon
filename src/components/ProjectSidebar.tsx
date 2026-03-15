@@ -129,6 +129,19 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
                 <span>전체 인사이트</span>
               </button>
 
+              {/* Favorites */}
+              <button
+                onClick={() => { onToggleFavorites?.(true); onSelectProject(null); onClose(); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  showFavorites
+                    ? "bg-yellow-400/10 text-yellow-600 font-medium"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <Star className={`h-4 w-4 ${showFavorites ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                <span>즐겨찾기</span>
+              </button>
+
               {projects.map((project) => (
                 <div key={project.id} className="group relative">
                   {editingId === project.id ? (

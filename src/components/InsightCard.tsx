@@ -181,6 +181,12 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
           </a>
         ) : <span />}
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={toggleFavorite}
+            className="p-1.5 transition-colors rounded-md hover:bg-muted"
+          >
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-foreground"}`} />
+          </button>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}
