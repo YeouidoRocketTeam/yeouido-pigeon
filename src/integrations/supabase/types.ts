@@ -138,6 +138,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          stock_alert_threshold: number
           updated_at: string
           user_id: string
         }
@@ -146,6 +147,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          stock_alert_threshold?: number
           updated_at?: string
           user_id: string
         }
@@ -154,6 +156,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          stock_alert_threshold?: number
           updated_at?: string
           user_id?: string
         }

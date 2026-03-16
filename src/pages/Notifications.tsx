@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, AlertTriangle, Check, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Check, RefreshCw, Trash2, Settings2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface StockChange {
   name: string;
@@ -43,6 +45,31 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
+  const [threshold, setThreshold] = useState(3);
+  const [savingThreshold, setSavingThreshold] = useState(false);
+
+  const fetchThreshold = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("stock_alert_threshold")
+      .eq("user_id", user.id)
+      .single();
+    if (data && (data as any).stock_alert_threshold != null) {
+      setThreshold(Number((data as any).stock_alert_threshold));
+    }
+  }, [user]);
+
+  const saveThreshold = async (value: number) => {
+    if (!user) return;
+    setSavingThreshold(true);
+    await supabase
+      .from("profiles")
+      .update({ stock_alert_threshold: value } as any)
+      .eq("user_id", user.id);
+    setSavingThreshold(false);
+    toast({ title: `알림 기준이 ${value}%로 변경되었습니다` });
+  };
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -56,7 +83,8 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    fetchThreshold();
+  }, [fetchNotifications, fetchThreshold]);
 
   const checkStockPrices = async () => {
     setChecking(true);
@@ -115,7 +143,44 @@ const Notifications = () => {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-xs">
+                  <Settings2 className="h-3.5 w-3.5 mr-1" />
+                  {threshold}%
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">알림 기준 설정</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      종목 가격이 설정한 비율 이상 변동하면 알림을 받습니다
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">변동률</span>
+                      <span className="text-sm font-bold text-foreground">{threshold}%</span>
+                    </div>
+                    <Slider
+                      value={[threshold]}
+                      onValueChange={([v]) => setThreshold(v)}
+                      onValueCommit={([v]) => saveThreshold(v)}
+                      min={1}
+                      max={20}
+                      step={0.5}
+                    />
+                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                      <span>1%</span>
+                      <span>10%</span>
+                      <span>20%</span>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs">
                 <Check className="h-3.5 w-3.5 mr-1" />
