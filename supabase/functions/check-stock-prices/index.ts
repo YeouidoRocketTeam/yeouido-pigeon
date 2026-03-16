@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const THRESHOLD = 3; // percentage change threshold
+    // THRESHOLD is now set from user profile above
     const significantChanges: { stock: StockChange; insights: { insightId: string; title: string }[] }[] = [];
 
     // Check each stock (limit to first 10 to avoid rate limiting)
