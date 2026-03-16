@@ -143,7 +143,44 @@ const Notifications = () => {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-xs">
+                  <Settings2 className="h-3.5 w-3.5 mr-1" />
+                  {threshold}%
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">알림 기준 설정</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      종목 가격이 설정한 비율 이상 변동하면 알림을 받습니다
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">변동률</span>
+                      <span className="text-sm font-bold text-foreground">{threshold}%</span>
+                    </div>
+                    <Slider
+                      value={[threshold]}
+                      onValueChange={([v]) => setThreshold(v)}
+                      onValueCommit={([v]) => saveThreshold(v)}
+                      min={1}
+                      max={20}
+                      step={0.5}
+                    />
+                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                      <span>1%</span>
+                      <span>10%</span>
+                      <span>20%</span>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs">
                 <Check className="h-3.5 w-3.5 mr-1" />
