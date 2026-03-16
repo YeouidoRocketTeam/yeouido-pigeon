@@ -45,6 +45,31 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
+  const [threshold, setThreshold] = useState(3);
+  const [savingThreshold, setSavingThreshold] = useState(false);
+
+  const fetchThreshold = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("stock_alert_threshold")
+      .eq("user_id", user.id)
+      .single();
+    if (data && (data as any).stock_alert_threshold != null) {
+      setThreshold(Number((data as any).stock_alert_threshold));
+    }
+  }, [user]);
+
+  const saveThreshold = async (value: number) => {
+    if (!user) return;
+    setSavingThreshold(true);
+    await supabase
+      .from("profiles")
+      .update({ stock_alert_threshold: value } as any)
+      .eq("user_id", user.id);
+    setSavingThreshold(false);
+    toast({ title: `알림 기준이 ${value}%로 변경되었습니다` });
+  };
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
