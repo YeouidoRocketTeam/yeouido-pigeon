@@ -89,6 +89,15 @@ Deno.serve(async (req) => {
 
     const userId = claimsData.claims.sub as string;
 
+    // Get user's threshold setting from profile
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("stock_alert_threshold")
+      .eq("user_id", userId)
+      .single();
+
+    const THRESHOLD = profileData?.stock_alert_threshold ?? 3;
+
     // Get all unique stocks from user's insights
     const { data: insights } = await supabase
       .from("insights")
