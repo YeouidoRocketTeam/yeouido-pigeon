@@ -83,7 +83,8 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    fetchThreshold();
+  }, [fetchNotifications, fetchThreshold]);
 
   const checkStockPrices = async () => {
     setChecking(true);
