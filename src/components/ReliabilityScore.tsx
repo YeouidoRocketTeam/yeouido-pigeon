@@ -168,6 +168,7 @@ function computeGroupScore(
 const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [showModal, setShowModal] = useState(false);
   const [expandedCriterion, setExpandedCriterion] = useState<string | null>(null);
+  const [showRadar, setShowRadar] = useState(false);
 
   const normalizedScore = score <= 5 ? score * 20 : score;
 
@@ -292,6 +293,30 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
                 </div>
               );
             })}
+
+            {/* Radar chart collapsible */}
+            {details && (
+              <div className="pt-3 border-t">
+                <button
+                  onClick={() => setShowRadar(!showRadar)}
+                  className="w-full flex items-center justify-between py-2 text-xs font-semibold text-foreground"
+                >
+                  <span>📊 6대 항목 레이더</span>
+                  {showRadar ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+                {showRadar && (
+                  <ReliabilityRadar
+                    scores={Object.fromEntries(
+                      Object.entries(details).map(([k, v]) => [k, (v as CriterionDetail).score])
+                    )}
+                  />
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
