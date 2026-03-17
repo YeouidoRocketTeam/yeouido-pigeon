@@ -132,14 +132,13 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
       {/* Fixed bottom CTA button */}
       <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
         <div className="max-w-2xl mx-auto pointer-events-auto">
-          <Button
+          <button
             onClick={() => setIsOpen(true)}
-            size="lg"
-            className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+            className="w-full h-14 text-base font-semibold rounded-2xl text-white shadow-lg shadow-[hsl(var(--primary))/0.3] bg-[hsl(245,58%,51%)] hover:bg-[hsl(245,58%,45%)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
-            <Zap className="h-5 w-5 mr-2" />
+            <Zap className="h-5 w-5" />
             분석 시작하기
-          </Button>
+          </button>
         </div>
       </div>
 
