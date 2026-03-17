@@ -1,0 +1,2 @@
+ALTER TABLE public.insights DROP CONSTRAINT insights_reliability_score_check;
+ALTER TABLE public.insights ADD CONSTRAINT insights_reliability_score_check CHECK (reliability_score >= 0 AND reliability_score <= 100);
