@@ -110,19 +110,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Reliability */}
         {insight.reliability_score && (
-          <div className="flex items-center gap-2 mb-6">
-            <span className="text-sm text-muted-foreground">신뢰도</span>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-6 rounded-full ${
-                    i <= insight.reliability_score! ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          <ReliabilityScore score={insight.reliability_score} />
         )}
 
         {/* Summary */}

@@ -114,7 +114,7 @@ serve(async (req) => {
                   },
                   reliability_score: {
                     type: "integer",
-                    description: "Reliability score 1-5 (5=most reliable, e.g. official news/reports=4-5, youtube=3, sns/community=1-2)",
+                    description: "Reliability score 1-100. Formula: 출처신뢰도(max 40) + 정보구체성(max 35) + 시장관련성(max 25). Official news/IR/reports=high source score, YouTube=medium, SNS/community=low. Concrete data with numbers/dates/citations=high specificity. Direct market relevance=high market score.",
                   },
                   themes: {
                     type: "array",
