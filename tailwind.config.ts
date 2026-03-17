@@ -52,6 +52,7 @@ export default {
         },
         brand: {
           DEFAULT: "hsl(var(--brand))",
+          light: "hsl(var(--brand-light))",
           foreground: "hsl(var(--brand-foreground))",
         },
         sidebar: {

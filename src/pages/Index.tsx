@@ -174,9 +174,9 @@ const Index = () => {
       </header>
 
       {/* Sub-header banner */}
-      <div className="bg-brand pb-3">
+      <div className="bg-brand-light py-2">
         <div className="max-w-2xl mx-auto px-4">
-          <p className="text-brand-foreground/80 text-sm flex items-center gap-1.5">
+          <p className="text-brand-foreground/90 text-sm font-medium flex items-center gap-1.5">
             <Zap className="h-3.5 w-3.5 text-amber-300" />
             AI 기반 투자 정보 분석 서비스
           </p>
