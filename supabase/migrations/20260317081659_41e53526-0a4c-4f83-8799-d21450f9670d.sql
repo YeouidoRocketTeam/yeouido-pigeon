@@ -1,0 +1,1 @@
+ALTER TABLE public.insights ADD COLUMN investment_sentiment text DEFAULT null;
