@@ -86,126 +86,128 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
-        {/* Main content */}
-        <div>
-          {/* Source */}
-          <div className="flex items-center gap-2 mb-4">
-            {insight.favicon_url ? (
-              <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
-            ) : (
-              <Globe className="w-5 h-5 text-muted-foreground" />
+      <div>
+        {/* Source */}
+        <div className="flex items-center gap-2 mb-4">
+          {insight.favicon_url ? (
+            <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
+          ) : (
+            <Globe className="w-5 h-5 text-muted-foreground" />
+          )}
+          <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
+          {insight.source_type && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+              {sourceTypeLabels[insight.source_type] || insight.source_type}
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
+          {insight.ai_title || insight.original_title || "제목 없음"}
+        </h1>
+
+        {/* Reliability */}
+        {insight.reliability_score && (
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-sm text-muted-foreground">신뢰도</span>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={`h-2 w-6 rounded-full ${
+                    i <= insight.reliability_score! ? "bg-primary" : "bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Summary */}
+        {insight.ai_summary && (
+          <div className="mb-8">
+            <h2 className="text-sm font-semibold text-foreground mb-3">AI 요약</h2>
+            <p className="text-base text-muted-foreground leading-relaxed">{insight.ai_summary}</p>
+          </div>
+        )}
+
+        {/* Sentiment + Themes + Stocks with Memo side-by-side */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
+          <div>
+            {/* Investment Sentiment */}
+            <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+
+            {/* Themes */}
+            {themes.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
+                <div className="flex flex-wrap gap-2">
+                  {themes.map((theme: string) => (
+                    <span key={theme} className="text-sm font-medium px-4 py-1.5 rounded-full bg-primary/10 text-primary">
+                      {theme}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
-            <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
-            {insight.source_type && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                {sourceTypeLabels[insight.source_type] || insight.source_type}
-              </span>
+
+            {/* Stocks */}
+            {stocks.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-sm font-semibold text-foreground mb-3">관련 종목</h2>
+                <div className="flex flex-wrap gap-2">
+                  {stocks.map((stock: string) => (
+                    <a
+                      key={stock}
+                      href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
+                    >
+                      {stock}
+                    </a>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Title */}
-          <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
-            {insight.ai_title || insight.original_title || "제목 없음"}
-          </h1>
-
-          {/* Reliability */}
-          {insight.reliability_score && (
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-sm text-muted-foreground">신뢰도</span>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className={`h-2 w-6 rounded-full ${
-                      i <= insight.reliability_score! ? "bg-primary" : "bg-muted"
-                    }`}
-                  />
-                ))}
-              </div>
+          {/* Memo - right side on desktop */}
+          <div className="hidden lg:block">
+            <div className="sticky top-20">
+              <MemoSidebar insight={insight} />
             </div>
-          )}
-
-          {/* Summary */}
-          {insight.ai_summary && (
-            <div className="mb-8">
-              <h2 className="text-sm font-semibold text-foreground mb-3">AI 요약</h2>
-              <p className="text-base text-muted-foreground leading-relaxed">{insight.ai_summary}</p>
-            </div>
-          )}
-
-          {/* Investment Sentiment */}
-          <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
-
-          {/* Themes */}
-          {themes.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
-              <div className="flex flex-wrap gap-2">
-                {themes.map((theme: string) => (
-                  <span key={theme} className="text-sm font-medium px-4 py-1.5 rounded-full bg-primary/10 text-primary">
-                    {theme}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Stocks */}
-          {stocks.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-sm font-semibold text-foreground mb-3">관련 종목</h2>
-              <div className="flex flex-wrap gap-2">
-                {stocks.map((stock: string) => (
-                  <a
-                    key={stock}
-                    href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
-                  >
-                    {stock}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Link */}
-          {insight.url && (
-            <a
-              href={insight.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-            >
-              <ExternalLink className="h-4 w-4" />
-              원문 보기
-            </a>
-          )}
-
-          {/* Recommended Content */}
-          <RecommendedContent insight={insight} />
-
-          {/* Disclaimer */}
-          <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700 leading-relaxed">
-              본 분석은 AI가 생성한 교육 목적의 정보입니다. 투자 권유가 아니며, 실제 투자 결정 전에는 반드시 자체적인 조사와 전문가 상담을 진행하시기 바랍니다.
-            </p>
-          </div>
-
-          {/* Meta */}
-          <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-            추가일: {new Date(insight.created_at).toLocaleDateString("ko-KR")}
           </div>
         </div>
 
-        {/* Right sidebar - Yellow memo */}
-        <div className="hidden lg:block">
-          <div className="sticky top-20">
-            <MemoSidebar insight={insight} />
-          </div>
+        {/* Link */}
+        {insight.url && (
+          <a
+            href={insight.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            <ExternalLink className="h-4 w-4" />
+            원문 보기
+          </a>
+        )}
+
+        {/* Recommended Content */}
+        <RecommendedContent insight={insight} />
+
+        {/* Disclaimer */}
+        <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-700 leading-relaxed">
+            본 분석은 AI가 생성한 교육 목적의 정보입니다. 투자 권유가 아니며, 실제 투자 결정 전에는 반드시 자체적인 조사와 전문가 상담을 진행하시기 바랍니다.
+          </p>
+        </div>
+
+        {/* Meta */}
+        <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
+          추가일: {new Date(insight.created_at).toLocaleDateString("ko-KR")}
         </div>
       </div>
 
