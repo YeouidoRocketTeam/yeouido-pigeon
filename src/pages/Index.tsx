@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { LogOut, FolderOpen } from "lucide-react";
+import { FolderOpen, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import InsightCard from "@/components/InsightCard";
@@ -8,9 +9,10 @@ import InsightDetail from "@/components/InsightDetail";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
 import SkeletonCard from "@/components/SkeletonCard";
-import SubscriptionManager from "@/components/SubscriptionManager";
+import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
 import ProjectSidebar from "@/components/ProjectSidebar";
+import SettingsDropdown from "@/components/SettingsDropdown";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -33,13 +35,15 @@ const formatDateGroup = (dateStr: string): string => {
 };
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
@@ -75,9 +79,16 @@ const Index = () => {
 
   // Filter by search query
   const filteredInsights = useMemo(() => {
-    if (!searchQuery.trim()) return insights;
+    let result = insights;
+
+    // Filter favorites
+    if (showFavorites) {
+      result = result.filter((ins) => (ins as any).is_favorited);
+    }
+
+    if (!searchQuery.trim()) return result;
     const q = searchQuery.toLowerCase();
-    return insights.filter((ins) => {
+    return result.filter((ins) => {
       const fields = [
         ins.ai_title, ins.original_title, ins.ai_summary,
         ins.source_domain, ins.memo,
@@ -87,7 +98,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery]);
+  }, [insights, searchQuery, showFavorites]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
@@ -118,6 +129,7 @@ const Index = () => {
                 setSelectedInsight(null);
                 fetchInsights();
               }}
+              onUpdated={fetchInsights}
             />
           </AnimatePresence>
         </div>
@@ -130,9 +142,11 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={setSelectedProjectId}
+        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) setShowFavorites(false); }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
+        showFavorites={showFavorites}
+        onToggleFavorites={(show) => { setShowFavorites(show); if (show) setSelectedProjectId(null); }}
       />
 
       {/* Header */}
@@ -147,24 +161,27 @@ const Index = () => {
             </button>
             <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
           </div>
-          <button
-            onClick={signOut}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => navigate("/notifications")}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+            >
+              <Bell className="h-5 w-5" />
+            </button>
+            <SettingsDropdown />
+          </div>
         </div>
       </header>
 
-      {/* Search */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-      </div>
+      {/* Story-style subscriptions */}
+      <SubscriptionStories />
 
-      {/* Action buttons */}
+      {/* Search + Add button */}
       <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
+        <div className="flex-1">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        </div>
         <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
-        <SubscriptionManager />
       </div>
 
       {/* Content */}
@@ -197,6 +214,7 @@ const Index = () => {
                       insight={insight}
                       index={i}
                       onClick={() => setSelectedInsight(insight)}
+                      onDeleted={fetchInsights}
                     />
                   ))}
                 </div>

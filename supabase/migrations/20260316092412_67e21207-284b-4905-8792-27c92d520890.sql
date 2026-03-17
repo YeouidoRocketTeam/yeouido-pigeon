@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN stock_alert_threshold numeric NOT NULL DEFAULT 3;

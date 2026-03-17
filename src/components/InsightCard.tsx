@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Globe } from "lucide-react";
+import { ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import MoveToProject from "@/components/MoveToProject";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -26,11 +29,36 @@ interface InsightCardProps {
   insight: Insight;
   index: number;
   onClick?: () => void;
+  onDeleted?: () => void;
 }
 
-const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
+const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
+  const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
+  const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newValue = !isFavorited;
+    setIsFavorited(newValue);
+    const { error } = await supabase.from("insights").update({ is_favorited: newValue }).eq("id", insight.id);
+    if (error) {
+      setIsFavorited(!newValue);
+      toast({ title: "즐겨찾기 실패", variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase.from("insights").delete().eq("id", insight.id);
+    if (error) {
+      toast({ title: "삭제 실패", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "삭제 완료" });
+      onDeleted?.();
+    }
+  };
 
   return (
     <motion.div
@@ -106,29 +134,39 @@ const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
         </p>
       )}
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {themes.map((theme: string) => (
-          <span
-            key={theme}
-            className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary"
-          >
-            {theme}
-          </span>
-        ))}
-        {stocks.map((stock: string) => (
-          <a
-            key={stock}
-            href={`kiwoomhero://stock?name=${encodeURIComponent(stock)}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
-          >
-            {stock}
-          </a>
-        ))}
-      </div>
+      {/* Themes */}
+      {themes.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {themes.map((theme: string) => (
+            <span
+              key={theme}
+              className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary"
+            >
+              {theme}
+            </span>
+          ))}
+        </div>
+      )}
 
-      {/* Footer: URL link + Move */}
+      {/* Stocks */}
+      {stocks.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {stocks.map((stock: string) => (
+            <a
+              key={stock}
+              href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
+            >
+              {stock}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Footer: URL link + Actions */}
       <div className="flex items-center justify-between mt-3">
         {insight.url ? (
           <a
@@ -142,11 +180,23 @@ const InsightCard = ({ insight, index, onClick }: InsightCardProps) => {
             원문 보기
           </a>
         ) : <span />}
-        <div onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={toggleFavorite}
+            className="p-1.5 transition-colors rounded-md hover:bg-muted"
+          >
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-foreground"}`} />
+          </button>
           <MoveToProject
             insightId={insight.id}
             currentProjectId={(insight as any).project_id ?? null}
           />
+          <button
+            onClick={handleDelete}
+            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </motion.div>

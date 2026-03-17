@@ -1,0 +1,1 @@
+ALTER TABLE public.insights ADD COLUMN is_favorited boolean NOT NULL DEFAULT false;
