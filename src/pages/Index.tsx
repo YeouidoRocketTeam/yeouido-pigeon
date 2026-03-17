@@ -214,7 +214,7 @@ const Index = () => {
                 <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">
                   {group.label}
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {group.items.map((insight, i) => (
                     <InsightCard
                       key={insight.id}
