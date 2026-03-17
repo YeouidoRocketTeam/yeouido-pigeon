@@ -158,7 +158,7 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-card rounded-t-2xl overflow-hidden"
+              className="w-full max-w-lg bg-card rounded-t-3xl overflow-hidden"
             >
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-1">
