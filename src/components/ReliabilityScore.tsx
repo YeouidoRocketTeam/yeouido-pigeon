@@ -320,7 +320,6 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           </div>
         )}
       </div>
-      </div>
 
       {/* Info Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
