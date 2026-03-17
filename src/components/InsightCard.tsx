@@ -60,143 +60,109 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
     }
   };
 
+  const timeAgo = (() => {
+    const diff = Date.now() - new Date(insight.created_at).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}분 전`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}시간 전`;
+    const days = Math.floor(hours / 24);
+    return `${days}일 전`;
+  })();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 30,
-        delay: index * 0.06,
-      }}
-      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30, delay: index * 0.06 }}
       whileTap={{ scale: 0.99 }}
       onClick={onClick}
-      className="bg-card rounded-xl p-5 card-shadow hover:card-shadow-hover transition-shadow cursor-pointer"
+      className="bg-card rounded-xl card-shadow hover:card-shadow-hover transition-shadow cursor-pointer flex overflow-hidden"
     >
-      {/* Source info */}
-      <div className="flex items-center gap-2 mb-3">
-        {insight.favicon_url ? (
-          <img
-            src={insight.favicon_url}
-            alt=""
-            className="w-4 h-4 rounded-sm"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        ) : (
-          <Globe className="w-4 h-4 text-muted-foreground" />
-        )}
-        <span className="text-sm text-muted-foreground truncate">
-          {insight.source_domain || "알 수 없는 출처"}
-        </span>
-        {insight.source_type && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-            {sourceTypeLabels[insight.source_type] || insight.source_type}
-          </span>
-        )}
-        {insight.reliability_score && (
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              reliabilityColors[insight.reliability_score] || "bg-muted text-muted-foreground"
-            }`}
-          >
-            신뢰도 {insight.reliability_score}/5
-          </span>
-        )}
-      </div>
+      {/* Left accent bar */}
+      <div className="w-1 shrink-0 bg-destructive" />
 
-      {/* Title */}
-      <h3 className="text-lg font-semibold tracking-tight text-foreground leading-snug mb-2">
-        {insight.ai_title || insight.original_title || "분석 중..."}
-      </h3>
-
-      {/* Summary */}
-      {insight.ai_summary && (
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4">
-          {insight.ai_summary}
-        </p>
-      )}
-
-      {/* Processing state */}
-      {insight.status === "processing" && (
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          <span className="text-sm text-primary font-medium">AI 분석 중...</span>
+      <div className="flex-1 px-4 py-3 min-w-0">
+        {/* Top row: source type + time */}
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-2">
+            {insight.favicon_url ? (
+              <img src={insight.favicon_url} alt="" className="w-3.5 h-3.5 rounded-sm" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            ) : (
+              <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
+            {insight.source_type && (
+              <span className="text-xs font-medium text-muted-foreground">
+                {sourceTypeLabels[insight.source_type] || insight.source_type}
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-muted-foreground shrink-0">{timeAgo}</span>
         </div>
-      )}
 
-      {insight.status === "error" && (
-        <p className="text-sm text-destructive mb-4">
-          분석 실패: {insight.error_message || "알 수 없는 오류"}
-        </p>
-      )}
+        {/* Title */}
+        <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-1 mb-0.5">
+          {insight.ai_title || insight.original_title || "분석 중..."}
+        </h3>
 
-      {/* Themes */}
-      {themes.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {themes.map((theme: string) => (
-            <span
-              key={theme}
-              className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary"
-            >
-              {theme}
-            </span>
-          ))}
-        </div>
-      )}
+        {/* Summary */}
+        {insight.ai_summary && (
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-1 mb-2">
+            {insight.ai_summary}
+          </p>
+        )}
 
-      {/* Stocks */}
-      {stocks.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {stocks.map((stock: string) => (
-            <a
-              key={stock}
-              href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-xs font-medium px-3 py-1 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
-            >
-              {stock}
-            </a>
-          ))}
-        </div>
-      )}
+        {/* Processing state */}
+        {insight.status === "processing" && (
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-primary font-medium">AI 분석 중...</span>
+          </div>
+        )}
 
-      {/* Footer: URL link + Actions */}
-      <div className="flex items-center justify-between mt-3">
-        {insight.url ? (
-          <a
-            href={insight.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ExternalLink className="w-3 h-3" />
-            원문 보기
-          </a>
-        ) : <span />}
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={toggleFavorite}
-            className="p-1.5 transition-colors rounded-md hover:bg-muted"
-          >
-            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-foreground"}`} />
-          </button>
-          <MoveToProject
-            insightId={insight.id}
-            currentProjectId={(insight as any).project_id ?? null}
-          />
-          <button
-            onClick={handleDelete}
-            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+        {insight.status === "error" && (
+          <p className="text-xs text-destructive mb-2 line-clamp-1">
+            분석 실패: {insight.error_message || "알 수 없는 오류"}
+          </p>
+        )}
+
+        {/* Bottom row: reliability + stocks + actions */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            {insight.reliability_score && (
+              <span className="text-xs font-bold text-amber-500 tabular-nums shrink-0">
+                {insight.reliability_score * 20}
+                <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
+              </span>
+            )}
+            {stocks.map((stock: string) => (
+              <a
+                key={stock}
+                href={`https://finance.naver.com/search/searchList.naver?query=${encodeURIComponent(stock)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-accent/30 text-accent tabular-nums hover:bg-accent/10 transition-colors"
+              >
+                {stock}
+              </a>
+            ))}
+            {themes.slice(0, 2).map((theme: string) => (
+              <span key={theme} className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                {theme}
+              </span>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button onClick={toggleFavorite} className="p-1 transition-colors rounded hover:bg-muted">
+              <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-foreground"}`} />
+            </button>
+            <button onClick={handleDelete} className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded hover:bg-destructive/10">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
