@@ -134,7 +134,7 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
         <div className="max-w-2xl mx-auto pointer-events-auto">
           <button
             onClick={() => setIsOpen(true)}
-            className="w-full h-14 text-base font-semibold rounded-2xl text-white shadow-lg shadow-[hsl(var(--primary))/0.3] bg-[hsl(245,58%,51%)] hover:bg-[hsl(245,58%,45%)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            className="w-full h-14 text-base font-semibold rounded-2xl text-brand-foreground shadow-lg bg-brand hover:bg-brand/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             <Zap className="h-5 w-5" />
             분석 시작하기
