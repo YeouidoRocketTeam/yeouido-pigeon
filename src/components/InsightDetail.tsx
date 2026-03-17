@@ -35,6 +35,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
   const themes = (insight.themes as string[]) || [];
   const stocks = (insight.stocks as string[]) || [];
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const toggleFavorite = async () => {
     const newValue = !isFavorited;
