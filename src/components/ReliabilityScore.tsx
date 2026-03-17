@@ -4,6 +4,7 @@ import {
   AlertCircle, ChevronDown, ChevronUp, X, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ReliabilityRadar from "@/components/ReliabilityRadar";
 import {
   Dialog,
   DialogContent,
