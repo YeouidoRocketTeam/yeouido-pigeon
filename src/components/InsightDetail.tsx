@@ -134,6 +134,9 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
             </div>
           )}
 
+          {/* Investment Sentiment */}
+          <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+
           {/* Themes */}
           {themes.length > 0 && (
             <div className="mb-6">
