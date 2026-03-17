@@ -357,6 +357,18 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
               })}
             </div>
 
+            {/* Radar Chart */}
+            {details && (
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">📊 6대 항목 레이더</h3>
+                <ReliabilityRadar
+                  scores={Object.fromEntries(
+                    Object.entries(details).map(([k, v]) => [k, (v as CriterionDetail).score])
+                  )}
+                />
+              </div>
+            )}
+
             {/* Disclaimer */}
             <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-muted">
               <AlertCircle className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
