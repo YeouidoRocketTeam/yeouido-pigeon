@@ -10,12 +10,19 @@ import { useToast } from "@/hooks/use-toast";
 interface AddInsightDialogProps {
   onAdded: () => void;
   projectId?: string | null;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
 type AnalysisType = "news" | "screenshot" | "youtube" | null;
 
-const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange }: AddInsightDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setIsOpen = (v: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(v);
+    else setInternalOpen(v);
+  };
   const [selectedType, setSelectedType] = useState<AnalysisType>(null);
   const [url, setUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,18 +136,20 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
 
   return (
     <>
-      {/* Fixed bottom CTA button */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
-        <div className="max-w-2xl mx-auto pointer-events-auto">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="w-full h-14 text-base font-semibold rounded-2xl text-brand-foreground shadow-lg bg-brand hover:bg-brand/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <Zap className="h-5 w-5" />
-            분석 시작하기
-          </button>
+      {/* Fixed bottom CTA button - only show when not externally controlled */}
+      {externalOpen === undefined && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
+          <div className="max-w-2xl mx-auto pointer-events-auto">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="w-full h-14 text-base font-semibold rounded-2xl text-brand-foreground shadow-lg bg-brand hover:bg-brand/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <Zap className="h-5 w-5" />
+              분석 시작하기
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Backdrop + Drawer */}
       <AnimatePresence>
