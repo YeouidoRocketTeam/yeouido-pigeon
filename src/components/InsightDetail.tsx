@@ -8,6 +8,7 @@ import MemoSidebar from "@/components/MemoSidebar";
 import RecommendedContent from "@/components/RecommendedContent";
 import MoveToProject from "@/components/MoveToProject";
 import InvestmentSentiment from "@/components/InvestmentSentiment";
+import ReliabilityScore from "@/components/ReliabilityScore";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
