@@ -309,7 +309,7 @@ Respond ONLY with the tool call.`,
     const finalScore = computeFinalScore(reliabilityDetails);
 
     // Update insight
-    await supabase.from("insights").update({
+    const { error: updateError } = await supabase.from("insights").update({
       original_title: pageTitle,
       ai_title: analysis.ai_title,
       ai_summary: analysis.ai_summary,
@@ -321,6 +321,13 @@ Respond ONLY with the tool call.`,
       investment_sentiment: analysis.investment_sentiment,
       status: "completed",
     }).eq("id", insightId);
+
+    if (updateError) {
+      console.error("DB update error:", updateError);
+      throw new Error(`DB update failed: ${updateError.message}`);
+    }
+
+    console.log("Successfully updated insight:", insightId, "score:", finalScore);
 
     return new Response(
       JSON.stringify({ success: true, reliability_score: finalScore }),
