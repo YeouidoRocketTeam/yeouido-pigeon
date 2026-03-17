@@ -28,6 +28,7 @@ export type Database = {
           original_title: string | null
           project_id: string | null
           raw_content: string | null
+          reliability_details: Json | null
           reliability_score: number | null
           source_domain: string | null
           source_type: string | null
@@ -51,6 +52,7 @@ export type Database = {
           original_title?: string | null
           project_id?: string | null
           raw_content?: string | null
+          reliability_details?: Json | null
           reliability_score?: number | null
           source_domain?: string | null
           source_type?: string | null
@@ -74,6 +76,7 @@ export type Database = {
           original_title?: string | null
           project_id?: string | null
           raw_content?: string | null
+          reliability_details?: Json | null
           reliability_score?: number | null
           source_domain?: string | null
           source_type?: string | null

@@ -110,7 +110,10 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Reliability */}
         {insight.reliability_score && (
-          <ReliabilityScore score={insight.reliability_score} />
+          <ReliabilityScore
+            score={insight.reliability_score}
+            details={(insight as any).reliability_details}
+          />
         )}
 
         {/* Summary */}
