@@ -150,21 +150,21 @@ const Index = () => {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
+      <header className="sticky top-0 z-40 bg-[hsl(245,58%,51%)] text-white">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setProjectSidebarOpen(true)}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10"
             >
               <FolderOpen className="h-5 w-5" />
             </button>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
+            <h1 className="text-xl font-bold tracking-tight text-white">KITCH</h1>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => navigate("/notifications")}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10"
             >
               <Bell className="h-5 w-5" />
             </button>
@@ -172,6 +172,16 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* Sub-header banner */}
+      <div className="bg-[hsl(245,58%,51%)] pb-3">
+        <div className="max-w-2xl mx-auto px-4">
+          <p className="text-white/80 text-sm flex items-center gap-1.5">
+            <Zap className="h-3.5 w-3.5 text-amber-300" />
+            AI 기반 투자 정보 분석 서비스
+          </p>
+        </div>
+      </div>
 
       {/* Story-style subscriptions */}
       <SubscriptionStories />

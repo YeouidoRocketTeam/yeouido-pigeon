@@ -184,18 +184,8 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
                       {analysisTypes.map((type) => (
                         <button
                           key={type.id}
-                          onClick={() => {
-                            if (type.id === "screenshot") {
-                              toast({ title: "준비 중", description: "스크린샷 분석 기능은 곧 출시됩니다." });
-                              return;
-                            }
-                            setSelectedType(type.id);
-                          }}
-                          className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
-                            type.id === "screenshot"
-                              ? "bg-muted/50 opacity-60"
-                              : "bg-muted/70 hover:bg-muted active:scale-[0.98]"
-                          }`}
+                          onClick={() => setSelectedType(type.id)}
+                          className="w-full flex items-center gap-4 p-4 rounded-xl transition-all bg-muted/70 hover:bg-muted active:scale-[0.98]"
                         >
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${type.iconBg}`}>
                             <type.icon className={`h-5 w-5 ${type.iconColor}`} />
