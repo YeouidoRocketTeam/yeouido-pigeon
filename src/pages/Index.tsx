@@ -182,7 +182,7 @@ const Index = () => {
       </div>
 
       {/* Content */}
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 pb-24">
         {loading ? (
           <div className="space-y-4">
             {[0, 1, 2].map((i) => (
@@ -220,6 +220,9 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Fixed bottom CTA + Drawer */}
+      <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
     </div>
   );
 };
