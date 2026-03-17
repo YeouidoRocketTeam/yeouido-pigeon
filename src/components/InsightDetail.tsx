@@ -199,6 +199,15 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </p>
         </div>
 
+        {/* Add another content CTA */}
+        <button
+          onClick={() => setShowAddDialog(true)}
+          className="mt-6 w-full flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-dashed border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50 transition-all"
+        >
+          <PlusCircle className="h-5 w-5" />
+          <span className="text-sm font-semibold">다른 콘텐츠 분석하기</span>
+        </button>
+
         {/* Meta */}
         <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
           추가일: {new Date(insight.created_at).toLocaleDateString("ko-KR")}
@@ -209,6 +218,14 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
       <div className="mt-6 lg:hidden">
         <MemoSidebar insight={insight} />
       </div>
+
+      {/* AddInsightDialog controlled externally */}
+      <AddInsightDialog
+        onAdded={onUpdated || (() => {})}
+        projectId={(insight as any).project_id ?? null}
+        externalOpen={showAddDialog}
+        onExternalOpenChange={setShowAddDialog}
+      />
     </motion.div>
   );
 };
