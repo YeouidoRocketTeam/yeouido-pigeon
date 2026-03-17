@@ -193,6 +193,7 @@ serve(async (req) => {
         reliability_score: analysis.reliability_score,
         themes: analysis.themes,
         stocks: analysis.stocks,
+        investment_sentiment: analysis.investment_sentiment,
         status: "completed",
       })
       .eq("id", insightId);
