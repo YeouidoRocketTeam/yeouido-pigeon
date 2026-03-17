@@ -8,6 +8,7 @@ import MemoSidebar from "@/components/MemoSidebar";
 import RecommendedContent from "@/components/RecommendedContent";
 import MoveToProject from "@/components/MoveToProject";
 import InvestmentSentiment from "@/components/InvestmentSentiment";
+import ReliabilityScore from "@/components/ReliabilityScore";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -109,19 +110,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Reliability */}
         {insight.reliability_score && (
-          <div className="flex items-center gap-2 mb-6">
-            <span className="text-sm text-muted-foreground">신뢰도</span>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-6 rounded-full ${
-                    i <= insight.reliability_score! ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          <ReliabilityScore score={insight.reliability_score} />
         )}
 
         {/* Summary */}
