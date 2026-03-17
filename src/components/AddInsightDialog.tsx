@@ -10,12 +10,19 @@ import { useToast } from "@/hooks/use-toast";
 interface AddInsightDialogProps {
   onAdded: () => void;
   projectId?: string | null;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
 type AnalysisType = "news" | "screenshot" | "youtube" | null;
 
-const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange }: AddInsightDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setIsOpen = (v: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(v);
+    else setInternalOpen(v);
+  };
   const [selectedType, setSelectedType] = useState<AnalysisType>(null);
   const [url, setUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
