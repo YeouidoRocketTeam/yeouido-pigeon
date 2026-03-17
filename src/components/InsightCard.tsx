@@ -79,8 +79,12 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
       onClick={onClick}
       className="bg-card rounded-xl card-shadow hover:card-shadow-hover transition-shadow cursor-pointer flex overflow-hidden"
     >
-      {/* Left accent bar */}
-      <div className="w-1 shrink-0 bg-destructive" />
+      {/* Left accent bar - color by sentiment */}
+      <div className={`w-1 shrink-0 ${
+        insight.investment_sentiment === "bullish" ? "bg-accent" :
+        insight.investment_sentiment === "bearish" ? "bg-destructive" :
+        "bg-amber-400"
+      }`} />
 
       <div className="flex-1 px-4 py-3 min-w-0">
         {/* Top row: source type + time */}
@@ -129,9 +133,9 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
         {/* Bottom row: reliability + stocks + actions */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-            {insight.reliability_score && (
+            {insight.reliability_score != null && (
               <span className="text-xs font-bold text-amber-500 tabular-nums shrink-0">
-                {insight.reliability_score * 20}
+                {insight.reliability_score <= 5 ? insight.reliability_score * 20 : insight.reliability_score}
                 <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
               </span>
             )}
