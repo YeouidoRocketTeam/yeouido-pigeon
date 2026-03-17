@@ -86,14 +86,6 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
       iconColor: "text-primary",
     },
     {
-      id: "screenshot" as const,
-      icon: Image,
-      label: "스크린샷",
-      description: "차트, 실적표, 보고서 이미지를 업로드하세요",
-      iconBg: "bg-purple-100 dark:bg-purple-900/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
-    },
-    {
       id: "youtube" as const,
       icon: Youtube,
       label: "유튜브 영상",
@@ -140,14 +132,13 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
       {/* Fixed bottom CTA button */}
       <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
         <div className="max-w-2xl mx-auto pointer-events-auto">
-          <Button
+          <button
             onClick={() => setIsOpen(true)}
-            size="lg"
-            className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+            className="w-full h-14 text-base font-semibold rounded-2xl text-brand-foreground shadow-lg bg-brand hover:bg-brand/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
-            <Zap className="h-5 w-5 mr-2" />
+            <Zap className="h-5 w-5" />
             분석 시작하기
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -167,7 +158,7 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-card rounded-t-2xl overflow-hidden"
+              className="w-full max-w-lg bg-card rounded-t-3xl overflow-hidden"
             >
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-1">
@@ -193,18 +184,8 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
                       {analysisTypes.map((type) => (
                         <button
                           key={type.id}
-                          onClick={() => {
-                            if (type.id === "screenshot") {
-                              toast({ title: "준비 중", description: "스크린샷 분석 기능은 곧 출시됩니다." });
-                              return;
-                            }
-                            setSelectedType(type.id);
-                          }}
-                          className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
-                            type.id === "screenshot"
-                              ? "bg-muted/50 opacity-60"
-                              : "bg-muted/70 hover:bg-muted active:scale-[0.98]"
-                          }`}
+                          onClick={() => setSelectedType(type.id)}
+                          className="w-full flex items-center gap-4 p-4 rounded-xl transition-all bg-muted/70 hover:bg-muted active:scale-[0.98]"
                         >
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${type.iconBg}`}>
                             <type.icon className={`h-5 w-5 ${type.iconColor}`} />

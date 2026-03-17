@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { FolderOpen, Bell } from "lucide-react";
+import { FolderOpen, Bell, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -150,21 +150,21 @@ const Index = () => {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
+      <header className="sticky top-0 z-40 bg-brand text-brand-foreground">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setProjectSidebarOpen(true)}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              className="p-2 text-brand-foreground/70 hover:text-brand-foreground transition-colors rounded-lg hover:bg-brand-foreground/10"
             >
               <FolderOpen className="h-5 w-5" />
             </button>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">KITCH</h1>
+            <h1 className="text-xl font-bold tracking-tight text-brand-foreground">KITCH</h1>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => navigate("/notifications")}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              className="p-2 text-brand-foreground/70 hover:text-brand-foreground transition-colors rounded-lg hover:bg-brand-foreground/10"
             >
               <Bell className="h-5 w-5" />
             </button>
@@ -172,6 +172,16 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* Sub-header banner */}
+      <div className="bg-brand pb-3">
+        <div className="max-w-2xl mx-auto px-4">
+          <p className="text-brand-foreground/80 text-sm flex items-center gap-1.5">
+            <Zap className="h-3.5 w-3.5 text-amber-300" />
+            AI 기반 투자 정보 분석 서비스
+          </p>
+        </div>
+      </div>
 
       {/* Story-style subscriptions */}
       <SubscriptionStories />
