@@ -86,14 +86,6 @@ const AddInsightDialog = ({ onAdded, projectId }: AddInsightDialogProps) => {
       iconColor: "text-primary",
     },
     {
-      id: "screenshot" as const,
-      icon: Image,
-      label: "스크린샷",
-      description: "차트, 실적표, 보고서 이미지를 업로드하세요",
-      iconBg: "bg-purple-100 dark:bg-purple-900/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
-    },
-    {
       id: "youtube" as const,
       icon: Youtube,
       label: "유튜브 영상",
