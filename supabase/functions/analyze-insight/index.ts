@@ -525,7 +525,7 @@ Respond ONLY with the tool call.`,
                   },
                   ai_summary: {
                     type: "string",
-                    description: "Comprehensive Korean summary of investment insights (2-4 sentences)",
+                    description: "Korean summary as exactly 3 short bullet points separated by newlines. Each point must be one concise sentence (under 30 chars) capturing a key insight. Example format: '현대차, 엔비디아와 자율주행·SDV 협업 확대 기대\nKAI는 방산 랠리 주춤 속 저가매수로 순매수 2위\n삼성전자우, AI칩 파운드리 기대에 동반 강세'",
                   },
                   source_type: {
                     type: "string",
