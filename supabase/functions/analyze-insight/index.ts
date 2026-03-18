@@ -17,7 +17,6 @@ const WEIGHTS = {
   cross_verification: 0.027,
 };
 
-// Points deducted per checklist item (1st=30, 2nd=25, 3rd=20, 4th=15, 5th=5)
 const ITEM_POINTS = [30, 25, 20, 15, 5];
 
 function computeCriterionScore(flags: boolean[]): number {
@@ -35,6 +34,264 @@ function computeFinalScore(details: Record<string, { flags: boolean[]; score: nu
   }
   return Math.round(total * 100);
 }
+
+// ── YouTube helpers ──
+
+function extractYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function isYouTubeUrl(url: string): boolean {
+  return /(?:youtube\.com|youtu\.be)/.test(url);
+}
+
+/** Fetch transcript list page and extract captions */
+async function fetchYouTubeTranscript(videoId: string, lang?: string): Promise<string | null> {
+  try {
+    // Fetch the YouTube watch page to get captions player response
+    const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const res = await fetch(watchUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": lang === "ko" ? "ko-KR,ko;q=0.9" : "en-US,en;q=0.9",
+      },
+    });
+    const html = await res.text();
+
+    // Extract captions data from ytInitialPlayerResponse
+    const playerMatch = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/s);
+    if (!playerMatch) {
+      console.log("No ytInitialPlayerResponse found");
+      return null;
+    }
+
+    let playerData: any;
+    try {
+      playerData = JSON.parse(playerMatch[1]);
+    } catch {
+      console.log("Failed to parse player response");
+      return null;
+    }
+
+    const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+    if (!captionTracks || captionTracks.length === 0) {
+      console.log("No caption tracks available");
+      return null;
+    }
+
+    // Find the right track based on language preference
+    let targetTrack = null;
+
+    if (lang) {
+      // Priority 1: manual track in requested language
+      targetTrack = captionTracks.find(
+        (t: any) => t.languageCode === lang && t.kind !== "asr"
+      );
+      // Priority 2: auto-generated track in requested language
+      if (!targetTrack) {
+        targetTrack = captionTracks.find(
+          (t: any) => t.languageCode === lang && t.kind === "asr"
+        );
+      }
+    }
+
+    if (!targetTrack) {
+      // Priority 3: any manual track
+      targetTrack = captionTracks.find((t: any) => t.kind !== "asr");
+    }
+
+    if (!targetTrack) {
+      // Priority 4: any auto-generated track
+      targetTrack = captionTracks[0];
+    }
+
+    if (!targetTrack?.baseUrl) {
+      console.log("No usable caption track found");
+      return null;
+    }
+
+    console.log(`Found caption track: lang=${targetTrack.languageCode}, kind=${targetTrack.kind || "manual"}`);
+
+    // Fetch the caption XML
+    const captionRes = await fetch(targetTrack.baseUrl);
+    const captionXml = await captionRes.text();
+
+    // Parse XML to extract text
+    const textSegments: string[] = [];
+    const regex = /<text[^>]*>([\s\S]*?)<\/text>/g;
+    let match;
+    while ((match = regex.exec(captionXml)) !== null) {
+      const decoded = match[1]
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\n/g, " ")
+        .trim();
+      if (decoded) textSegments.push(decoded);
+    }
+
+    if (textSegments.length === 0) return null;
+
+    const transcript = textSegments.join(" ").slice(0, 12000);
+    console.log(`Extracted transcript: ${transcript.length} chars, ${textSegments.length} segments`);
+    return transcript;
+  } catch (e) {
+    console.error("fetchYouTubeTranscript error:", e);
+    return null;
+  }
+}
+
+/** Scrape YouTube page for description + channel name (fallback for when no captions exist) */
+async function fetchYouTubeMetadata(videoId: string): Promise<{ title: string; channel: string; description: string } | null> {
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const oembedRes = await fetch(oembedUrl);
+    let oembedTitle = "";
+    let oembedChannel = "";
+    if (oembedRes.ok) {
+      const oembedData = await oembedRes.json();
+      oembedTitle = oembedData.title || "";
+      oembedChannel = oembedData.author_name || "";
+    } else {
+      await oembedRes.text(); // consume body
+    }
+
+    // Fetch the watch page for description
+    const watchRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    const html = await watchRes.text();
+
+    let description = "";
+    // Try to extract from meta tag
+    const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i);
+    if (descMatch) {
+      description = descMatch[1]
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+    }
+
+    // Also try og:description for longer text
+    const ogDescMatch = html.match(/<meta\s+property="og:description"\s+content="([^"]*)"/i);
+    if (ogDescMatch && ogDescMatch[1].length > description.length) {
+      description = ogDescMatch[1]
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+    }
+
+    // Try to get full description from ytInitialData
+    const initialDataMatch = html.match(/ytInitialData\s*=\s*({.+?});/s);
+    if (initialDataMatch) {
+      try {
+        const data = JSON.parse(initialDataMatch[1]);
+        const engagementPanels = data?.engagementPanels;
+        if (engagementPanels) {
+          for (const panel of engagementPanels) {
+            const content = panel?.engagementPanelSectionListRenderer?.content?.structuredDescriptionContentRenderer?.items;
+            if (content) {
+              for (const item of content) {
+                const descText = item?.expandableVideoDescriptionBodyRenderer?.descriptionBodyText?.runs;
+                if (descText) {
+                  description = descText.map((r: any) => r.text).join("").slice(0, 4000);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    if (!oembedTitle && !description) return null;
+
+    return {
+      title: oembedTitle,
+      channel: oembedChannel,
+      description: description.slice(0, 4000),
+    };
+  } catch (e) {
+    console.error("fetchYouTubeMetadata error:", e);
+    return null;
+  }
+}
+
+/**
+ * YouTube content extraction with fallback chain:
+ * 1. Korean manual subtitles
+ * 2. Any language subtitles (manual or auto-generated)
+ * 3. Video description + channel name
+ * 4. null (분석 불가)
+ */
+async function extractYouTubeContent(videoId: string): Promise<{
+  content: string;
+  title: string;
+  method: string;
+} | null> {
+  // 1순위: 한국어 수동 자막
+  console.log("YouTube extraction: trying Korean subtitles...");
+  let transcript = await fetchYouTubeTranscript(videoId, "ko");
+  if (transcript) {
+    const meta = await fetchYouTubeMetadata(videoId);
+    return {
+      content: transcript,
+      title: meta?.title || "",
+      method: "korean_subtitle",
+    };
+  }
+
+  // 2순위: 전 언어 자막 (수동 + 자동 생성 포함)
+  console.log("YouTube extraction: trying any language subtitles...");
+  transcript = await fetchYouTubeTranscript(videoId);
+  if (transcript) {
+    const meta = await fetchYouTubeMetadata(videoId);
+    return {
+      content: transcript,
+      title: meta?.title || "",
+      method: "any_subtitle",
+    };
+  }
+
+  // 3순위 & 4순위: 영상 설명 + 채널명 (yt-dlp 대체 - Deno에서 바이너리 실행 불가)
+  console.log("YouTube extraction: trying description + channel...");
+  const meta = await fetchYouTubeMetadata(videoId);
+  if (meta && (meta.description || meta.title)) {
+    const parts: string[] = [];
+    if (meta.channel) parts.push(`채널: ${meta.channel}`);
+    if (meta.title) parts.push(`제목: ${meta.title}`);
+    if (meta.description) parts.push(`설명: ${meta.description}`);
+    return {
+      content: parts.join("\n\n"),
+      title: meta.title,
+      method: "description",
+    };
+  }
+
+  // 최후위: 분석 불가
+  console.log("YouTube extraction: all methods failed");
+  return null;
+}
+
+// ── Main handler ──
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -61,37 +318,77 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch the URL content
     let pageContent = "";
     let pageTitle = "";
-    try {
-      const pageResponse = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; InsightBot/1.0)" },
-      });
-      const html = await pageResponse.text();
-      const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
-      pageTitle = titleMatch ? titleMatch[1].trim() : "";
-      pageContent = html
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 8000);
-    } catch (fetchError) {
-      console.error("Error fetching URL:", fetchError);
-      await supabase.from("insights").update({
-        status: "error",
-        error_message: "URL을 가져올 수 없습니다.",
-        original_title: url,
-      }).eq("id", insightId);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch URL" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let isYouTube = false;
+
+    // ── YouTube URL handling ──
+    if (isYouTubeUrl(url)) {
+      isYouTube = true;
+      const videoId = extractYouTubeVideoId(url);
+
+      if (!videoId) {
+        await supabase.from("insights").update({
+          status: "error",
+          error_message: "유효하지 않은 유튜브 URL입니다.",
+          original_title: url,
+        }).eq("id", insightId);
+        return new Response(
+          JSON.stringify({ error: "Invalid YouTube URL" }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`Processing YouTube video: ${videoId}`);
+      const ytResult = await extractYouTubeContent(videoId);
+
+      if (!ytResult) {
+        await supabase.from("insights").update({
+          status: "error",
+          error_message: "유튜브 영상의 자막 및 설명을 가져올 수 없어 분석이 불가합니다.",
+          original_title: url,
+        }).eq("id", insightId);
+        return new Response(
+          JSON.stringify({ error: "YouTube content extraction failed" }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`YouTube content extracted via: ${ytResult.method}`);
+      pageTitle = ytResult.title;
+      pageContent = ytResult.content;
+    } else {
+      // ── Regular URL handling ──
+      try {
+        const pageResponse = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; InsightBot/1.0)" },
+        });
+        const html = await pageResponse.text();
+        const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+        pageTitle = titleMatch ? titleMatch[1].trim() : "";
+        pageContent = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 8000);
+      } catch (fetchError) {
+        console.error("Error fetching URL:", fetchError);
+        await supabase.from("insights").update({
+          status: "error",
+          error_message: "URL을 가져올 수 없습니다.",
+          original_title: url,
+        }).eq("id", insightId);
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch URL" }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    // AI analysis with new 6-criteria reliability checklist
+    // ── AI analysis ──
+    const contentLabel = isYouTube ? "YouTube video transcript/description" : "article";
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -112,8 +409,9 @@ CRITICAL SCORING RULES:
 - Only official securities firm reports with full financial data should approach 90+.
 - Be especially strict on: data_specificity (most articles lack charts/comparisons), logical_completeness (most articles don't discuss risks), time_validity (most articles are already hours old).
 - If you cannot verify something from the text, mark it TRUE (assume the worst).
+- For YouTube content: be extra strict on source_authority (most YouTubers lack professional credentials) and data_specificity (videos rarely have detailed charts/data).
 
-Analyze the given article and:
+Analyze the given ${contentLabel} and:
 1. Extract investment insights (title, summary, themes, stocks, sentiment, source type)
 2. Evaluate reliability using a 6-criteria checklist system.
 
@@ -167,7 +465,7 @@ Respond ONLY with the tool call.`,
           },
           {
             role: "user",
-            content: `Analyze this investment-related content:\n\nURL: ${url}\nTitle: ${pageTitle}\n\nContent:\n${pageContent}`,
+            content: `Analyze this investment-related ${contentLabel}:\n\nURL: ${url}\nTitle: ${pageTitle}\n\nContent:\n${pageContent}`,
           },
         ],
         tools: [
@@ -212,7 +510,6 @@ Respond ONLY with the tool call.`,
                     type: "string",
                     enum: ["positive", "neutral", "negative"],
                   },
-                  // Reliability checklist - each is array of 5 booleans [q1..q5]
                   source_authority: {
                     type: "array",
                     items: { type: "boolean" },
@@ -298,7 +595,7 @@ Respond ONLY with the tool call.`,
 
     const analysis = JSON.parse(toolCall.function.arguments);
 
-    // Compute reliability scores from checklist flags
+    // Compute reliability scores
     const criteriaKeys = [
       "source_authority", "data_specificity", "logical_completeness",
       "time_validity", "interest_transparency", "cross_verification",
@@ -307,7 +604,6 @@ Respond ONLY with the tool call.`,
     const reliabilityDetails: Record<string, { flags: boolean[]; score: number }> = {};
     for (const key of criteriaKeys) {
       const flags = Array.isArray(analysis[key]) ? analysis[key].slice(0, 5) : [false, false, false, false, false];
-      // Pad to 5 if needed
       while (flags.length < 5) flags.push(false);
       const score = computeCriterionScore(flags);
       reliabilityDetails[key] = { flags, score };
@@ -315,12 +611,11 @@ Respond ONLY with the tool call.`,
 
     const finalScore = computeFinalScore(reliabilityDetails);
 
-    // Update insight
     const { error: updateError } = await supabase.from("insights").update({
       original_title: pageTitle,
       ai_title: analysis.ai_title,
       ai_summary: analysis.ai_summary,
-      source_type: analysis.source_type,
+      source_type: isYouTube ? "youtube" : analysis.source_type,
       reliability_score: finalScore,
       reliability_details: reliabilityDetails,
       themes: analysis.themes,
