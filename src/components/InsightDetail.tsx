@@ -108,7 +108,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Title */}
         <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
-          {insight.ai_title || insight.original_title || "제목 없음"}
+          {insight.original_title || insight.ai_title || "제목 없음"}
         </h1>
 
         {/* Reliability */}
