@@ -1,0 +1,1 @@
+ALTER TABLE public.insights ADD COLUMN ai_keywords text NULL;
