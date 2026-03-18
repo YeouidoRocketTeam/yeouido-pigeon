@@ -21,8 +21,10 @@ function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
 }
 
 const ReliabilityRadar = ({ scores, size = 260 }: RadarChartProps) => {
-  const cx = size / 2;
-  const cy = size / 2;
+  const padding = 50;
+  const totalSize = size + padding * 2;
+  const cx = totalSize / 2;
+  const cy = totalSize / 2;
   const maxR = size * 0.36;
   const n = AXES.length;
   const angleStep = 360 / n;
@@ -51,7 +53,7 @@ const ReliabilityRadar = ({ scores, size = 260 }: RadarChartProps) => {
 
   return (
     <div className="flex justify-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg width="100%" viewBox={`0 0 ${totalSize} ${totalSize}`} style={{ maxWidth: totalSize }}>
         {/* Grid rings */}
         {ringPaths.map((pts, i) => (
           <polygon
