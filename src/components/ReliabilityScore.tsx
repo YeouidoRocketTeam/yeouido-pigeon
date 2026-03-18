@@ -167,6 +167,7 @@ function computeGroupScore(
 
 const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [showModal, setShowModal] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [expandedCriterion, setExpandedCriterion] = useState<string | null>(null);
   const [showRadar, setShowRadar] = useState(false);
