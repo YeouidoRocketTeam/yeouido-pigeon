@@ -653,10 +653,43 @@ Respond ONLY with the tool call.`,
 
     const finalScore = computeFinalScore(reliabilityDetails);
 
+    // ── 2nd LLM call: generate short keywords (15 chars max each) ──
+    let aiKeywords = "";
+    try {
+      const keywordsResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          messages: [
+            {
+              role: "system",
+              content: "You extract exactly 3 ultra-short Korean keyword headlines from an investment summary. Each keyword must be under 15 characters. Output ONLY 3 lines, one keyword per line. No numbers, no bullets, no punctuation at the end.",
+            },
+            {
+              role: "user",
+              content: `다음 투자 요약에서 핵심 키워드 3개를 각각 15자 이내로 추출해줘:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}`,
+            },
+          ],
+        }),
+      });
+      if (keywordsResponse.ok) {
+        const kwData = await keywordsResponse.json();
+        aiKeywords = kwData.choices?.[0]?.message?.content?.trim() || "";
+        console.log("Generated keywords:", aiKeywords);
+      }
+    } catch (kwErr) {
+      console.error("Keywords LLM call failed:", kwErr);
+    }
+
     const { error: updateError } = await supabase.from("insights").update({
       original_title: pageTitle,
       ai_title: analysis.ai_title,
       ai_summary: analysis.ai_summary,
+      ai_keywords: aiKeywords || null,
       source_type: isYouTube ? "youtube" : analysis.source_type,
       source_domain: sourceName,
       reliability_score: finalScore,
