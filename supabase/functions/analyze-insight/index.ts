@@ -588,7 +588,7 @@ Respond ONLY with the tool call.`,
                   },
                 },
                 required: [
-                  "ai_title", "ai_summary", "source_type", "themes", "stocks", "investment_sentiment",
+                  "ai_title", "ai_summary", "ai_keywords", "source_type", "themes", "stocks", "investment_sentiment",
                   "source_authority", "data_specificity", "logical_completeness",
                   "time_validity", "interest_transparency", "cross_verification",
                 ],
