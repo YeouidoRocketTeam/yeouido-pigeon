@@ -160,19 +160,21 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               </button>
             </div>
 
-            {/* Keyword headlines */}
-            <ol className="space-y-4">
-              {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <span className="text-sm font-medium text-foreground">{line.trim()}</span>
-                </li>
+            {/* Keywords */}
+            <div className="flex flex-wrap gap-2">
+              {themes.map((theme) => (
+                <span key={theme} className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
+                  {theme}
+                </span>
               ))}
-            </ol>
+              {stocks.map((stock) => (
+                <span key={stock.name} className="text-sm font-medium px-3 py-1 rounded-full bg-accent/10 text-accent">
+                  {stock.name}
+                </span>
+              ))}
+            </div>
 
-            {/* Expanded: detailed AI analysis */}
+            {/* Expanded: AI summary details */}
             <AnimatePresence>
               {summaryExpanded && (
                 <motion.div
@@ -183,15 +185,16 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   className="overflow-hidden"
                 >
                   <div className="mt-4 pt-4 border-t">
-                    {insight.raw_content ? (
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {insight.raw_content.length > 1000
-                          ? insight.raw_content.slice(0, 1000) + "…"
-                          : insight.raw_content}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">상세 내용이 없습니다.</p>
-                    )}
+                    <ol className="space-y-3">
+                      {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                            {i + 1}
+                          </span>
+                          <span className="text-sm text-foreground leading-relaxed">{line.trim()}</span>
+                        </li>
+                      ))}
+                    </ol>
                   </div>
                 </motion.div>
               )}
