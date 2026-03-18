@@ -53,7 +53,7 @@ const ReliabilityRadar = ({ scores, size = 260 }: RadarChartProps) => {
 
   return (
     <div className="flex justify-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg width="100%" viewBox={`0 0 ${totalSize} ${totalSize}`} style={{ maxWidth: totalSize }}>
         {/* Grid rings */}
         {ringPaths.map((pts, i) => (
           <polygon
