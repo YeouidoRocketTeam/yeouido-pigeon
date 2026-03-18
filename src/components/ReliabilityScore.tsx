@@ -214,83 +214,96 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           <div className="space-y-4 pt-3 border-t">
             {GROUPS.map((group) => {
               const groupScore = computeGroupScore(group, details);
+              const isGroupExpanded = expandedGroup === group.key;
               return (
                 <div key={group.key}>
-                  {/* Group header */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
+                  {/* Group header - clickable */}
+                  <button
+                    onClick={() => setExpandedGroup(isGroupExpanded ? null : group.key)}
+                    className="w-full flex items-center justify-between py-2 text-left"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs font-bold text-foreground">{group.label}</span>
-                      <span className="text-xs text-muted-foreground ml-2">{group.subtitle}</span>
+                      <span className="text-xs text-muted-foreground hidden sm:inline">{group.subtitle}</span>
                     </div>
-                    <span className={`text-sm font-bold tabular-nums ${getScoreColor(groupScore)}`}>
-                      {groupScore}
-                    </span>
-                  </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`text-sm font-bold tabular-nums ${getScoreColor(groupScore)}`}>
+                        {groupScore}
+                      </span>
+                      {isGroupExpanded ? (
+                        <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
 
-                  {/* Criteria within group */}
-                  <div className="space-y-1.5">
-                    {group.criteria.map((c) => {
-                      const detail = details[c.key];
-                      if (!detail) return null;
-                      const isExpanded = expandedCriterion === c.key;
-                      const Icon = c.icon;
-                      return (
-                        <div key={c.key} className="rounded-lg border bg-background">
-                          <button
-                            onClick={() => setExpandedCriterion(isExpanded ? null : c.key)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
-                          >
-                            <Icon className="h-4 w-4 text-primary shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-foreground">{c.label}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground">×{c.weight}</span>
-                                  <span className={`text-sm font-bold tabular-nums ${getScoreColor(detail.score)}`}>
-                                    {detail.score}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted mt-1">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-500 ${getBarColorClass(detail.score)}`}
-                                  style={{ width: `${detail.score}%` }}
-                                />
-                              </div>
-                            </div>
-                            {isExpanded ? (
-                              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            ) : (
-                              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            )}
-                          </button>
-
-                          {isExpanded && (
-                            <div className="px-3 pb-3 pt-0 space-y-1.5 pl-10">
-                              {c.checklist.map((item, idx) => {
-                                const flagged = detail.flags[idx];
-                                return (
-                                  <div key={idx} className="flex items-start gap-2">
-                                    {flagged ? (
-                                      <X className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
-                                    ) : (
-                                      <Check className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
-                                    )}
-                                    <span className={`text-xs leading-relaxed ${flagged ? "text-destructive/80" : "text-muted-foreground"}`}>
-                                      {item}
-                                      <span className="ml-1 text-muted-foreground/60">
-                                        ({flagged ? `-${ITEM_POINTS[idx]}` : "0"})
-                                      </span>
+                  {/* Criteria within group - collapsible */}
+                  {isGroupExpanded && (
+                    <div className="space-y-1.5 pb-2">
+                      {group.criteria.map((c) => {
+                        const detail = details[c.key];
+                        if (!detail) return null;
+                        const isExpanded = expandedCriterion === c.key;
+                        const Icon = c.icon;
+                        return (
+                          <div key={c.key} className="rounded-lg border bg-background">
+                            <button
+                              onClick={() => setExpandedCriterion(isExpanded ? null : c.key)}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
+                            >
+                              <Icon className="h-4 w-4 text-primary shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-semibold text-foreground">{c.label}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">×{c.weight}</span>
+                                    <span className={`text-sm font-bold tabular-nums ${getScoreColor(detail.score)}`}>
+                                      {detail.score}
                                     </span>
                                   </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                                </div>
+                                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted mt-1">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ${getBarColorClass(detail.score)}`}
+                                    style={{ width: `${detail.score}%` }}
+                                  />
+                                </div>
+                              </div>
+                              {isExpanded ? (
+                                <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              ) : (
+                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              )}
+                            </button>
+
+                            {isExpanded && (
+                              <div className="px-3 pb-3 pt-0 space-y-1.5 pl-10">
+                                {c.checklist.map((item, idx) => {
+                                  const flagged = detail.flags[idx];
+                                  return (
+                                    <div key={idx} className="flex items-start gap-2">
+                                      {flagged ? (
+                                        <X className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
+                                      ) : (
+                                        <Check className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                                      )}
+                                      <span className={`text-xs leading-relaxed ${flagged ? "text-destructive/80" : "text-muted-foreground"}`}>
+                                        {item}
+                                        <span className="ml-1 text-muted-foreground/60">
+                                          ({flagged ? `-${ITEM_POINTS[idx]}` : "0"})
+                                        </span>
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
