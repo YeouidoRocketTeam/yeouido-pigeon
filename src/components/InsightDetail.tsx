@@ -209,28 +209,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         </div>
 
-        {/* Link */}
-        {insight.url && (
-          <div className="inline-flex items-center gap-2">
-            <a
-              href={insight.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-            >
-              {insight.favicon_url && (
-                <img src={insight.favicon_url} alt="" className="h-4 w-4 rounded-sm" />
-              )}
-              <ExternalLink className="h-4 w-4" />
-              원문 보기
-            </a>
-            {insight.source_domain && (
-              <span className="text-xs text-muted-foreground">
-                — {insight.source_domain}
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Disclaimer */}
         <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
