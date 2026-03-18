@@ -35,7 +35,8 @@ interface InsightCardProps {
 const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
-  const stocks = (insight.stocks as string[]) || [];
+  const rawStocks = (insight.stocks as any[]) || [];
+  const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "" } : { name: s.name, code: s.code || "" });
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
 
   const toggleFavorite = async (e: React.MouseEvent) => {
