@@ -136,7 +136,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             {insight.reliability_score != null && (
               <span className="text-xs font-bold text-amber-500 tabular-nums shrink-0">
-                {insight.reliability_score <= 5 ? insight.reliability_score * 20 : insight.reliability_score}
+                {insight.reliability_score}
                 <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
               </span>
             )}
