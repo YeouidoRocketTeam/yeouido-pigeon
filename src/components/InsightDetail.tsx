@@ -160,23 +160,46 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               </button>
             </div>
 
-            {(() => {
-              const lines = insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim());
-              return (
-                <ol className="space-y-3">
-                  {lines.map((line, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
-                        {i + 1}
-                      </span>
-                      <span className={`text-sm text-foreground ${summaryExpanded ? "leading-relaxed" : "line-clamp-1"}`}>
-                        {line.trim()}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              );
-            })()}
+            {/* Collapsed: short keywords */}
+            {!summaryExpanded && (
+              <ol className="space-y-3">
+                {((insight as any).ai_keywords
+                  ? (insight as any).ai_keywords.split("\n").filter((s: string) => s.trim())
+                  : insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((s) => s.trim().slice(0, 15))
+                ).map((line: string, i: number) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-medium text-foreground">{line.trim()}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {/* Expanded: full AI summary */}
+            <AnimatePresence>
+              {summaryExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <ol className="space-y-3">
+                    {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm text-foreground leading-relaxed">{line.trim()}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
