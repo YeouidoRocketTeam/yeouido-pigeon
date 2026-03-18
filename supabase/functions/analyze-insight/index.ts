@@ -527,6 +527,10 @@ Respond ONLY with the tool call.`,
                     type: "string",
                     description: "Korean summary as exactly 3 short bullet points separated by newlines. Each point must be one concise sentence (under 30 chars) capturing a key insight. Example format: '현대차, 엔비디아와 자율주행·SDV 협업 확대 기대\nKAI는 방산 랠리 주춤 속 저가매수로 순매수 2위\n삼성전자우, AI칩 파운드리 기대에 동반 강세'",
                   },
+                  ai_keywords: {
+                    type: "string",
+                    description: "Exactly 3 ultra-short Korean keyword headlines, each under 15 characters, separated by newlines. No numbering, no punctuation. Example: '희토류 회수 기술\n공급망 안정화\n상업 생산 목표'",
+                  },
                   source_type: {
                     type: "string",
                     enum: ["news", "report", "youtube", "sns", "community", "other"],
