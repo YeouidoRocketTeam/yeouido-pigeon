@@ -121,9 +121,23 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Summary */}
         {insight.ai_summary && (
-          <div className="mb-8">
-            <h2 className="text-sm font-semibold text-foreground mb-3">AI 요약</h2>
-            <p className="text-base text-muted-foreground leading-relaxed">{insight.ai_summary}</p>
+          <div className="mb-8 rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-primary" />
+              </div>
+              <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
+            </div>
+            <ol className="space-y-2.5">
+              {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-semibold text-foreground leading-relaxed">{line.trim()}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         )}
 
@@ -198,10 +212,10 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
         )}
 
         {/* Disclaimer */}
-        <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 leading-relaxed">
-            본 분석은 AI가 생성한 교육 목적의 정보입니다. 투자 권유가 아니며, 실제 투자 결정 전에는 반드시 자체적인 조사와 전문가 상담을 진행하시기 바랍니다.
+        <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg bg-muted">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            본 분석은 참고용 정보이며, 투자 판단의 최종 책임은 사용자에게 있습니다.
           </p>
         </div>
 
