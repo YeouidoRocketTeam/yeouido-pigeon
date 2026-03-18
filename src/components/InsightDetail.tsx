@@ -183,8 +183,8 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   className="overflow-hidden"
                 >
                   <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
-                      {((insight as any).ai_summary_detail as string).trim()}
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {((insight as any).ai_summary_detail as string).split("\n").map((s: string) => s.trim()).filter(Boolean).join(" ")}
                     </p>
                   </div>
                 </motion.div>
