@@ -160,14 +160,11 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               </button>
             </div>
 
-            {/* Short version: keywords */}
+            {/* Default view: ai_summary (medium-length bullet points) */}
             <ol className="space-y-3">
-              {(insight.ai_keywords
-                ? insight.ai_keywords.split("\n").filter((s: string) => s.trim())
-                : insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((s) => s.trim().slice(0, 15))
-              ).map((line: string, i: number) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+              {insight.ai_summary.split("\n").filter((s) => s.trim()).map((line, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
                     {i + 1}
                   </span>
                   <span className="text-sm font-medium text-foreground">{line.trim()}</span>
