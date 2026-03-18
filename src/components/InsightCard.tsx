@@ -81,9 +81,9 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
     >
       {/* Left accent bar - color by sentiment */}
       <div className={`w-1 shrink-0 ${
-        insight.investment_sentiment === "bullish" ? "bg-accent" :
-        insight.investment_sentiment === "bearish" ? "bg-destructive" :
-        "bg-amber-400"
+        insight.investment_sentiment === "bullish" ? "bg-green-500" :
+        insight.investment_sentiment === "bearish" ? "bg-red-500" :
+        "bg-yellow-400"
       }`} />
 
       <div className="flex-1 px-4 py-3 min-w-0">
