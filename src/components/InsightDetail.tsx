@@ -172,9 +172,9 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               ))}
             </ol>
 
-            {/* Expanded: full AI summary */}
+            {/* Expanded: detailed AI summary */}
             <AnimatePresence>
-              {summaryExpanded && (
+              {summaryExpanded && (insight as any).ai_summary_detail && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -184,7 +184,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 >
                   <div className="mt-4 pt-4 border-t border-border">
                     <ol className="space-y-3">
-                      {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                      {((insight as any).ai_summary_detail as string).split("\n").filter((s: string) => s.trim()).map((line: string, i: number) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
                             {i + 1}
