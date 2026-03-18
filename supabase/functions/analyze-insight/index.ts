@@ -364,8 +364,20 @@ serve(async (req) => {
           headers: { "User-Agent": "Mozilla/5.0 (compatible; InsightBot/1.0)" },
         });
         const html = await pageResponse.text();
-        const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
-        pageTitle = titleMatch ? titleMatch[1].trim() : "";
+        
+        // Try og:title first (usually the clean article title)
+        const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
+        if (ogTitleMatch) {
+          pageTitle = ogTitleMatch[1]
+            .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+            .replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+        } else {
+          const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+          pageTitle = titleMatch ? titleMatch[1].trim() : "";
+          // Remove common suffixes like " : 네이버 뉴스", " | 연합뉴스" etc.
+          pageTitle = pageTitle.replace(/\s*[:\|\-–—]\s*(네이버\s*뉴스|네이버|Naver|NAVER).*$/i, "").trim();
+        }
+        
         pageContent = html
           .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
           .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")

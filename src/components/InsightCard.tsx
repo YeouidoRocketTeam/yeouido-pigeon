@@ -107,7 +107,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
 
         {/* Title */}
         <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-1 mb-0.5">
-          {insight.ai_title || insight.original_title || "분석 중..."}
+          {insight.original_title || insight.ai_title || "분석 중..."}
         </h3>
 
         {/* Summary */}
