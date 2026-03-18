@@ -154,7 +154,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   {stocks.map((stock: string) => (
                     <a
                       key={stock}
-                      href={`https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(stock + ' 주가')}`}
+                      href={`https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"

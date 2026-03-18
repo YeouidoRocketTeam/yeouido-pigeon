@@ -142,7 +142,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
             {stocks.map((stock: string) => (
               <a
                 key={stock}
-                href={`https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(stock + ' 주가')}`}
+                href={`https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
