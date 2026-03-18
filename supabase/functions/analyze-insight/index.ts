@@ -527,6 +527,10 @@ Respond ONLY with the tool call.`,
                     type: "string",
                     description: "Korean summary as exactly 3 short bullet points separated by newlines. Each point must be one concise sentence (under 30 chars) capturing a key insight. Example format: '현대차, 엔비디아와 자율주행·SDV 협업 확대 기대\nKAI는 방산 랠리 주춤 속 저가매수로 순매수 2위\n삼성전자우, AI칩 파운드리 기대에 동반 강세'",
                   },
+                  ai_keywords: {
+                    type: "string",
+                    description: "Exactly 3 ultra-short Korean keyword headlines, each under 15 characters, separated by newlines. No numbering, no punctuation. Example: '희토류 회수 기술\n공급망 안정화\n상업 생산 목표'",
+                  },
                   source_type: {
                     type: "string",
                     enum: ["news", "report", "youtube", "sns", "community", "other"],
@@ -584,7 +588,7 @@ Respond ONLY with the tool call.`,
                   },
                 },
                 required: [
-                  "ai_title", "ai_summary", "source_type", "themes", "stocks", "investment_sentiment",
+                  "ai_title", "ai_summary", "ai_keywords", "source_type", "themes", "stocks", "investment_sentiment",
                   "source_authority", "data_specificity", "logical_completeness",
                   "time_validity", "interest_transparency", "cross_verification",
                 ],
@@ -653,10 +657,10 @@ Respond ONLY with the tool call.`,
 
     const finalScore = computeFinalScore(reliabilityDetails);
 
-    // ── 2nd LLM call: generate short keywords (15 chars max each) ──
-    let aiKeywords = "";
+    // ── 2nd LLM call: generate detailed summary (full paragraphs) ──
+    let aiSummaryDetail = "";
     try {
-      const keywordsResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const detailResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${lovableApiKey}`,
@@ -667,29 +671,30 @@ Respond ONLY with the tool call.`,
           messages: [
             {
               role: "system",
-              content: "You extract exactly 3 ultra-short Korean keyword headlines from an investment summary. Each keyword must be under 15 characters. Output ONLY 3 lines, one keyword per line. No numbers, no bullets, no punctuation at the end.",
+              content: "You are a Korean investment content analyst. Generate exactly 3 detailed summary paragraphs from the given content. Each paragraph should be a complete, informative sentence (50-100 characters) that fully explains the key point. Output ONLY 3 lines, one paragraph per line. No numbers, no bullets.",
             },
             {
               role: "user",
-              content: `다음 투자 요약에서 핵심 키워드 3개를 각각 15자 이내로 추출해줘:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}`,
+              content: `다음 투자 콘텐츠의 상세 요약을 3개 문장으로 작성해줘. 각 문장은 50~100자 사이로, 핵심 내용을 구체적으로 설명해야 해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 3000)}`,
             },
           ],
         }),
       });
-      if (keywordsResponse.ok) {
-        const kwData = await keywordsResponse.json();
-        aiKeywords = kwData.choices?.[0]?.message?.content?.trim() || "";
-        console.log("Generated keywords:", aiKeywords);
+      if (detailResponse.ok) {
+        const detailData = await detailResponse.json();
+        aiSummaryDetail = detailData.choices?.[0]?.message?.content?.trim() || "";
+        console.log("Generated detailed summary:", aiSummaryDetail);
       }
-    } catch (kwErr) {
-      console.error("Keywords LLM call failed:", kwErr);
+    } catch (detailErr) {
+      console.error("Detail summary LLM call failed:", detailErr);
     }
 
     const { error: updateError } = await supabase.from("insights").update({
       original_title: pageTitle,
       ai_title: analysis.ai_title,
       ai_summary: analysis.ai_summary,
-      ai_keywords: aiKeywords || null,
+      ai_keywords: analysis.ai_keywords || null,
+      ai_summary_detail: aiSummaryDetail || null,
       source_type: isYouTube ? "youtube" : analysis.source_type,
       source_domain: sourceName,
       reliability_score: finalScore,

@@ -1,0 +1,1 @@
+ALTER TABLE public.insights ADD COLUMN ai_summary_detail text NULL;

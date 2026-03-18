@@ -155,19 +155,16 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 onClick={() => setSummaryExpanded(!summaryExpanded)}
                 className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               >
-                고정점
+                상세보기
                 {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               </button>
             </div>
 
-            {/* Short version: keywords */}
+            {/* Default view: ai_summary (medium-length bullet points) */}
             <ol className="space-y-3">
-              {(insight.ai_keywords
-                ? insight.ai_keywords.split("\n").filter((s: string) => s.trim())
-                : insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((s) => s.trim().slice(0, 15))
-              ).map((line: string, i: number) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+              {insight.ai_summary.split("\n").filter((s) => s.trim()).map((line, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
                     {i + 1}
                   </span>
                   <span className="text-sm font-medium text-foreground">{line.trim()}</span>
@@ -175,9 +172,9 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               ))}
             </ol>
 
-            {/* Expanded: full AI summary */}
+            {/* Expanded: detailed AI summary */}
             <AnimatePresence>
-              {summaryExpanded && (
+              {summaryExpanded && (insight as any).ai_summary_detail && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -187,7 +184,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 >
                   <div className="mt-4 pt-4 border-t border-border">
                     <ol className="space-y-3">
-                      {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                      {((insight as any).ai_summary_detail as string).split("\n").filter((s: string) => s.trim()).map((line: string, i: number) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
                             {i + 1}
