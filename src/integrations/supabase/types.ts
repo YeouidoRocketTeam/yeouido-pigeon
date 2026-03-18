@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           ai_keywords: string | null
           ai_summary: string | null
+          ai_summary_detail: string | null
           ai_title: string | null
           created_at: string
           error_message: string | null
@@ -43,6 +44,7 @@ export type Database = {
         Insert: {
           ai_keywords?: string | null
           ai_summary?: string | null
+          ai_summary_detail?: string | null
           ai_title?: string | null
           created_at?: string
           error_message?: string | null
@@ -68,6 +70,7 @@ export type Database = {
         Update: {
           ai_keywords?: string | null
           ai_summary?: string | null
+          ai_summary_detail?: string | null
           ai_title?: string | null
           created_at?: string
           error_message?: string | null
