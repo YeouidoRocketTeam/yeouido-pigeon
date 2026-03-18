@@ -92,19 +92,40 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
       <div>
         {/* Source */}
-        <div className="flex items-center gap-2 mb-4">
-          {insight.favicon_url ? (
-            <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
-          ) : (
-            <Globe className="w-5 h-5 text-muted-foreground" />
-          )}
-          <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
-          {insight.source_type && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-              {sourceTypeLabels[insight.source_type] || insight.source_type}
-            </span>
-          )}
-        </div>
+        {insight.url ? (
+          <a
+            href={insight.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mb-4 hover:opacity-70 transition-opacity"
+          >
+            {insight.favicon_url ? (
+              <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
+            ) : (
+              <Globe className="w-5 h-5 text-muted-foreground" />
+            )}
+            <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
+            {insight.source_type && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                {sourceTypeLabels[insight.source_type] || insight.source_type}
+              </span>
+            )}
+          </a>
+        ) : (
+          <div className="flex items-center gap-2 mb-4">
+            {insight.favicon_url ? (
+              <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
+            ) : (
+              <Globe className="w-5 h-5 text-muted-foreground" />
+            )}
+            <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
+            {insight.source_type && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                {sourceTypeLabels[insight.source_type] || insight.source_type}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Title */}
         <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
@@ -188,28 +209,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         </div>
 
-        {/* Link */}
-        {insight.url && (
-          <div className="inline-flex items-center gap-2">
-            <a
-              href={insight.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-            >
-              {insight.favicon_url && (
-                <img src={insight.favicon_url} alt="" className="h-4 w-4 rounded-sm" />
-              )}
-              <ExternalLink className="h-4 w-4" />
-              원문 보기
-            </a>
-            {insight.source_domain && (
-              <span className="text-xs text-muted-foreground">
-                — {insight.source_domain}
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Disclaimer */}
         <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
