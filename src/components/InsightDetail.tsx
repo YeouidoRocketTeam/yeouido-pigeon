@@ -198,10 +198,10 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
         )}
 
         {/* Disclaimer */}
-        <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 leading-relaxed">
-            본 분석은 AI가 생성한 교육 목적의 정보입니다. 투자 권유가 아니며, 실제 투자 결정 전에는 반드시 자체적인 조사와 전문가 상담을 진행하시기 바랍니다.
+        <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg bg-muted">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            본 분석은 참고용 정보이며, 투자 판단의 최종 책임은 사용자에게 있습니다.
           </p>
         </div>
 
