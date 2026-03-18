@@ -37,6 +37,19 @@ function computeFinalScore(details: Record<string, { flags: boolean[]; score: nu
 
 // ── YouTube helpers ──
 
+/** Decode all HTML entities (named + numeric) */
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ");
+}
+
 function extractYouTubeVideoId(url: string): string | null {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
@@ -374,8 +387,7 @@ serve(async (req) => {
           || html.match(/<meta\s+content="([^"]*)"\s+(?:property|name)="og:site_name"/i);
         if (ogSiteNameMatch) {
           sourceName = ogSiteNameMatch[1]
-            .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-            .replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+            sourceName = decodeHtmlEntities(ogSiteNameMatch[1]).trim();
         }
         
         // Fallback: try application-name or publisher meta
@@ -383,19 +395,17 @@ serve(async (req) => {
           const publisherMatch = html.match(/<meta\s+(?:property|name)="(?:publisher|application-name|author)"\s+content="([^"]*)"/i)
             || html.match(/<meta\s+content="([^"]*)"\s+(?:property|name)="(?:publisher|application-name|author)"/i);
           if (publisherMatch) {
-            sourceName = publisherMatch[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim();
+            sourceName = decodeHtmlEntities(publisherMatch[1]).trim();
           }
         }
 
         // Try og:title first (usually the clean article title)
         const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
         if (ogTitleMatch) {
-          pageTitle = ogTitleMatch[1]
-            .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-            .replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+          pageTitle = decodeHtmlEntities(ogTitleMatch[1]).trim();
         } else {
           const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
-          pageTitle = titleMatch ? titleMatch[1].trim() : "";
+          pageTitle = titleMatch ? decodeHtmlEntities(titleMatch[1]).trim() : "";
           pageTitle = pageTitle.replace(/\s*[:\|\-–—]\s*(네이버\s*뉴스|네이버|Naver|NAVER).*$/i, "").trim();
         }
         
