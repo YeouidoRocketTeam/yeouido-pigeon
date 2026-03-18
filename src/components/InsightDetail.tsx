@@ -155,7 +155,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   {stocks.map((stock) => (
                     <a
                       key={stock.name}
-                      href={stock.code ? `https://finance.naver.com/item/main.naver?code=${stock.code}` : `https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock.name)}`}
+                      href={`https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock.name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
