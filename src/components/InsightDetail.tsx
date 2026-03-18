@@ -156,8 +156,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                     <a
                       key={stock.name}
                       href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
                     >
                       {stock.name}
