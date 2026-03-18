@@ -37,6 +37,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
   const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "" } : { name: s.name, code: s.code || "" });
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   const toggleFavorite = async () => {
     const newValue = !isFavorited;
