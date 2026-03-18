@@ -197,9 +197,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         )}
 
-        {/* Recommended Content */}
-        <RecommendedContent insight={insight} />
-
         {/* Disclaimer */}
         <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
           <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
