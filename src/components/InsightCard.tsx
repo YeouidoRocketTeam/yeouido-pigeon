@@ -35,7 +35,8 @@ interface InsightCardProps {
 const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
-  const stocks = (insight.stocks as string[]) || [];
+  const rawStocks = (insight.stocks as any[]) || [];
+  const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "" } : { name: s.name, code: s.code || "" });
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
 
   const toggleFavorite = async (e: React.MouseEvent) => {
@@ -139,16 +140,16 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
                 <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
               </span>
             )}
-            {stocks.map((stock: string) => (
+            {stocks.map((stock) => (
               <a
-                key={stock}
-                href={`https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock)}`}
+                key={stock.name}
+                href={stock.code ? `https://finance.naver.com/item/main.naver?code=${stock.code}` : `https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-accent/30 text-accent tabular-nums hover:bg-accent/10 transition-colors"
               >
-                {stock}
+                {stock.name}
               </a>
             ))}
             {themes.slice(0, 2).map((theme: string) => (

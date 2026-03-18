@@ -33,7 +33,8 @@ interface InsightDetailProps {
 const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailProps) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
-  const stocks = (insight.stocks as string[]) || [];
+  const rawStocks = (insight.stocks as any[]) || [];
+  const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "" } : { name: s.name, code: s.code || "" });
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -151,15 +152,15 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               <div className="mb-6">
                 <h2 className="text-sm font-semibold text-foreground mb-3">관련 종목</h2>
                 <div className="flex flex-wrap gap-2">
-                  {stocks.map((stock: string) => (
+                  {stocks.map((stock) => (
                     <a
-                      key={stock}
-                      href={`https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock)}`}
+                      key={stock.name}
+                      href={stock.code ? `https://finance.naver.com/item/main.naver?code=${stock.code}` : `https://m.stock.naver.com/domestic/stock/searchItem?query=${encodeURIComponent(stock.name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium px-4 py-1.5 rounded-full bg-accent/10 text-accent tabular-nums hover:bg-accent/20 transition-colors"
                     >
-                      {stock}
+                      {stock.name}
                     </a>
                   ))}
                 </div>

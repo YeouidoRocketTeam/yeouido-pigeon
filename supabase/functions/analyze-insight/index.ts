@@ -198,8 +198,15 @@ Respond ONLY with the tool call.`,
                   },
                   stocks: {
                     type: "array",
-                    items: { type: "string" },
-                    description: "Related stock names or tickers. Max 5.",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string", description: "Korean stock name (e.g. 삼성전자)" },
+                        code: { type: "string", description: "6-digit Korean stock code (e.g. 005930). Must be the exact KOSPI/KOSDAQ ticker code." },
+                      },
+                      required: ["name", "code"],
+                    },
+                    description: "Related Korean stocks with their exact 6-digit stock codes. Max 5.",
                   },
                   investment_sentiment: {
                     type: "string",
