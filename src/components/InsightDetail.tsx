@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MemoSidebar from "@/components/MemoSidebar";
-import RecommendedContent from "@/components/RecommendedContent";
+
 import MoveToProject from "@/components/MoveToProject";
 import InvestmentSentiment from "@/components/InvestmentSentiment";
 import ReliabilityScore from "@/components/ReliabilityScore";
