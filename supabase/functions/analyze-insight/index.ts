@@ -657,10 +657,10 @@ Respond ONLY with the tool call.`,
 
     const finalScore = computeFinalScore(reliabilityDetails);
 
-    // ── 2nd LLM call: generate short keywords (15 chars max each) ──
-    let aiKeywords = "";
+    // ── 2nd LLM call: generate detailed summary (full paragraphs) ──
+    let aiSummaryDetail = "";
     try {
-      const keywordsResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const detailResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${lovableApiKey}`,
@@ -671,22 +671,22 @@ Respond ONLY with the tool call.`,
           messages: [
             {
               role: "system",
-              content: "You extract exactly 3 ultra-short Korean keyword headlines from an investment summary. Each keyword must be under 15 characters. Output ONLY 3 lines, one keyword per line. No numbers, no bullets, no punctuation at the end.",
+              content: "You are a Korean investment content analyst. Generate exactly 3 detailed summary paragraphs from the given content. Each paragraph should be a complete, informative sentence (50-100 characters) that fully explains the key point. Output ONLY 3 lines, one paragraph per line. No numbers, no bullets.",
             },
             {
               role: "user",
-              content: `다음 투자 요약에서 핵심 키워드 3개를 각각 15자 이내로 추출해줘:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}`,
+              content: `다음 투자 콘텐츠의 상세 요약을 3개 문장으로 작성해줘. 각 문장은 50~100자 사이로, 핵심 내용을 구체적으로 설명해야 해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 3000)}`,
             },
           ],
         }),
       });
-      if (keywordsResponse.ok) {
-        const kwData = await keywordsResponse.json();
-        aiKeywords = kwData.choices?.[0]?.message?.content?.trim() || "";
-        console.log("Generated keywords:", aiKeywords);
+      if (detailResponse.ok) {
+        const detailData = await detailResponse.json();
+        aiSummaryDetail = detailData.choices?.[0]?.message?.content?.trim() || "";
+        console.log("Generated detailed summary:", aiSummaryDetail);
       }
-    } catch (kwErr) {
-      console.error("Keywords LLM call failed:", kwErr);
+    } catch (detailErr) {
+      console.error("Detail summary LLM call failed:", detailErr);
     }
 
     const { error: updateError } = await supabase.from("insights").update({
