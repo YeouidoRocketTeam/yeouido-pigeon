@@ -320,6 +320,7 @@ serve(async (req) => {
 
     let pageContent = "";
     let pageTitle = "";
+    let sourceName = ""; // 언론사명, 채널명 등
     let isYouTube = false;
 
     // ── YouTube URL handling ──
@@ -357,6 +358,9 @@ serve(async (req) => {
       console.log(`YouTube content extracted via: ${ytResult.method}`);
       pageTitle = ytResult.title;
       pageContent = ytResult.content;
+      // 유튜브 채널명 추출
+      const meta = await fetchYouTubeMetadata(videoId);
+      sourceName = meta?.channel || "YouTube";
     } else {
       // ── Regular URL handling ──
       try {
@@ -365,6 +369,24 @@ serve(async (req) => {
         });
         const html = await pageResponse.text();
         
+        // Extract og:site_name for publisher name (e.g. 연합뉴스, 한국경제)
+        const ogSiteNameMatch = html.match(/<meta\s+(?:property|name)="og:site_name"\s+content="([^"]*)"/i)
+          || html.match(/<meta\s+content="([^"]*)"\s+(?:property|name)="og:site_name"/i);
+        if (ogSiteNameMatch) {
+          sourceName = ogSiteNameMatch[1]
+            .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+            .replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+        }
+        
+        // Fallback: try application-name or publisher meta
+        if (!sourceName) {
+          const publisherMatch = html.match(/<meta\s+(?:property|name)="(?:publisher|application-name|author)"\s+content="([^"]*)"/i)
+            || html.match(/<meta\s+content="([^"]*)"\s+(?:property|name)="(?:publisher|application-name|author)"/i);
+          if (publisherMatch) {
+            sourceName = publisherMatch[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim();
+          }
+        }
+
         // Try og:title first (usually the clean article title)
         const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
         if (ogTitleMatch) {
@@ -374,7 +396,6 @@ serve(async (req) => {
         } else {
           const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
           pageTitle = titleMatch ? titleMatch[1].trim() : "";
-          // Remove common suffixes like " : 네이버 뉴스", " | 연합뉴스" etc.
           pageTitle = pageTitle.replace(/\s*[:\|\-–—]\s*(네이버\s*뉴스|네이버|Naver|NAVER).*$/i, "").trim();
         }
         
@@ -396,6 +417,15 @@ serve(async (req) => {
           JSON.stringify({ error: "Failed to fetch URL" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+    }
+    
+    // Fallback: use domain name if no source name found
+    if (!sourceName) {
+      try {
+        sourceName = new URL(url).hostname.replace("www.", "");
+      } catch {
+        sourceName = url;
       }
     }
 
