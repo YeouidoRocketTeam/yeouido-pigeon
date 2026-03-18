@@ -144,8 +144,6 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
               <a
                 key={stock.name}
                 href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
-                target="_blank"
-                rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-accent/30 text-accent tabular-nums hover:bg-accent/10 transition-colors"
               >
