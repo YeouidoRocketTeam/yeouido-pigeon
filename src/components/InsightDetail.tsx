@@ -121,9 +121,23 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Summary */}
         {insight.ai_summary && (
-          <div className="mb-8">
-            <h2 className="text-sm font-semibold text-foreground mb-3">AI 요약</h2>
-            <p className="text-base text-muted-foreground leading-relaxed">{insight.ai_summary}</p>
+          <div className="mb-8 rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-primary" />
+              </div>
+              <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
+            </div>
+            <ol className="space-y-2.5">
+              {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-semibold text-foreground leading-relaxed">{line.trim()}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         )}
 
