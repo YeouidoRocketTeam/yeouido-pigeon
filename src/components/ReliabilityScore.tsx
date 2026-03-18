@@ -170,7 +170,7 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [expandedCriterion, setExpandedCriterion] = useState<string | null>(null);
   const [showRadar, setShowRadar] = useState(false);
 
-  const normalizedScore = score <= 5 ? score * 20 : score;
+  const normalizedScore = score;
 
   return (
     <>
