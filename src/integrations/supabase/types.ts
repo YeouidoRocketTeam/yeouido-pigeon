@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       insights: {
         Row: {
+          ai_keywords: string | null
           ai_summary: string | null
           ai_title: string | null
           created_at: string
@@ -40,6 +41,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_keywords?: string | null
           ai_summary?: string | null
           ai_title?: string | null
           created_at?: string
@@ -64,6 +66,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_keywords?: string | null
           ai_summary?: string | null
           ai_title?: string | null
           created_at?: string
