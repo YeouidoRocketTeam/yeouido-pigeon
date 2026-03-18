@@ -155,7 +155,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 onClick={() => setSummaryExpanded(!summaryExpanded)}
                 className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               >
-                고정점
+                상세보기
                 {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               </button>
             </div>
