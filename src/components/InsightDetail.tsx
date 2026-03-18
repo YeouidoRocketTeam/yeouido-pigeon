@@ -183,16 +183,9 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   className="overflow-hidden"
                 >
                   <div className="mt-4 pt-4 border-t border-border">
-                    <ol className="space-y-3">
-                      {((insight as any).ai_summary_detail as string).split("\n").filter((s: string) => s.trim()).map((line: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
-                            {i + 1}
-                          </span>
-                          <span className="text-sm text-foreground leading-relaxed">{line.trim()}</span>
-                        </li>
-                      ))}
-                    </ol>
+                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                      {((insight as any).ai_summary_detail as string).trim()}
+                    </p>
                   </div>
                 </motion.div>
               )}
