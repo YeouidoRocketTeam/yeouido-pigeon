@@ -144,22 +144,54 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
         {/* Summary */}
         {insight.ai_summary && (
           <div className="mb-8 rounded-xl border bg-card p-5">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
-                <Globe className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-primary" />
+                </div>
+                <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
               </div>
-              <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
+              <button
+                onClick={() => setSummaryExpanded(!summaryExpanded)}
+                className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+              >
+                {summaryExpanded ? "접기" : "고정점"}
+                {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
             </div>
-            <ol className="space-y-3">
+
+            {/* Collapsed: title-like short bullets */}
+            <ol className="space-y-2">
               {insight.ai_summary.split(/\n|(?<=\.\s)/).filter((s) => s.trim()).map((line, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="shrink-0 text-sm font-semibold text-muted-foreground w-5 text-center mt-px">
+                  <span className="shrink-0 text-sm font-bold text-primary w-5 text-center mt-px">
                     {i + 1}
                   </span>
-                  <span className="text-sm text-foreground leading-relaxed">{line.trim()}</span>
+                  <span className="text-sm font-medium text-foreground leading-relaxed">{line.trim()}</span>
                 </li>
               ))}
             </ol>
+
+            {/* Expanded: detailed content */}
+            <AnimatePresence>
+              {summaryExpanded && insight.raw_content && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {insight.raw_content.length > 800
+                        ? insight.raw_content.slice(0, 800) + "…"
+                        : insight.raw_content}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
