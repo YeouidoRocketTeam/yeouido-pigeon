@@ -748,6 +748,9 @@ Respond ONLY with the tool call.`,
       console.error("Detail summary LLM call failed:", detailErr);
     }
 
+    // Preserve original source_domain if already set (e.g., from fetch-subscription)
+    const { data: currentInsight } = await supabase.from("insights").select("source_domain").eq("id", insightId).single();
+    
     const { error: updateError } = await supabase.from("insights").update({
       original_title: pageTitle,
       ai_title: analysis.ai_title,
@@ -755,7 +758,7 @@ Respond ONLY with the tool call.`,
       ai_keywords: analysis.ai_keywords || null,
       ai_summary_detail: aiSummaryDetail || null,
       source_type: isYouTube ? "youtube" : analysis.source_type,
-      source_domain: sourceName,
+      source_domain: currentInsight?.source_domain || sourceName,
       reliability_score: finalScore,
       reliability_details: reliabilityDetails,
       themes: analysis.themes,
