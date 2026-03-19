@@ -82,6 +82,16 @@ const Index = () => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchInsights]);
 
+  // Listen for related article navigation
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as Insight;
+      if (detail) setSelectedInsight(detail);
+    };
+    window.addEventListener("select-insight", handler);
+    return () => window.removeEventListener("select-insight", handler);
+  }, []);
+
   // Filter by search query and period
   const filteredInsights = useMemo(() => {
     let result = insights;
