@@ -234,6 +234,7 @@ const Index = () => {
 
       {/* Fixed bottom CTA + Drawer */}
       <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
+      <WelcomeDialog />
     </div>
   );
 };
