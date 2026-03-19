@@ -651,7 +651,7 @@ Respond ONLY with the tool call.`,
 
     const analysis = JSON.parse(toolCall.function.arguments);
 
-    // Compute reliability scores
+    // Compute reliability scores for non-cross-verification criteria first
     const criteriaKeys = [
       "source_authority", "data_specificity", "logical_completeness",
       "time_validity", "interest_transparency", "cross_verification",
@@ -663,6 +663,53 @@ Respond ONLY with the tool call.`,
       while (flags.length < 5) flags.push(false);
       const score = computeCriterionScore(flags);
       reliabilityDetails[key] = { flags, score };
+    }
+
+    // ── RAG-based cross-verification via Naver News API + vector store ──
+    try {
+      // Get the user_id from the insight record
+      const { data: insightRecord } = await supabase
+        .from("insights")
+        .select("user_id")
+        .eq("id", insightId)
+        .single();
+
+      const crossVerifyResponse = await fetch(
+        `${supabaseUrl}/functions/v1/cross-verify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            insightId,
+            title: analysis.ai_title || pageTitle,
+            summary: analysis.ai_summary || "",
+            content: pageContent.slice(0, 2000),
+            userId: insightRecord?.user_id || null,
+          }),
+        }
+      );
+
+      if (crossVerifyResponse.ok) {
+        const cvResult = await crossVerifyResponse.json();
+        if (cvResult.success && Array.isArray(cvResult.flags)) {
+          const cvFlags = cvResult.flags.map((f: any) => Boolean(f));
+          while (cvFlags.length < 5) cvFlags.push(true);
+          reliabilityDetails.cross_verification = {
+            flags: cvFlags.slice(0, 5),
+            score: computeCriterionScore(cvFlags.slice(0, 5)),
+          };
+          console.log(
+            `Cross-verification RAG: naver=${cvResult.naver_count}, similar=${cvResult.similar_count}, score=${reliabilityDetails.cross_verification.score}`
+          );
+        }
+      } else {
+        console.error("Cross-verify call failed:", crossVerifyResponse.status);
+      }
+    } catch (cvError) {
+      console.error("Cross-verification error (fallback to AI-only):", cvError);
     }
 
     const finalScore = computeFinalScore(reliabilityDetails);
