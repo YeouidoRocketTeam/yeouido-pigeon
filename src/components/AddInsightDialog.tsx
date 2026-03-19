@@ -113,6 +113,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
   const getPlaceholder = () => {
     switch (selectedType) {
       case "youtube": return "https://www.youtube.com/watch?v=...";
+      case "sns": return "https://x.com/user/status/...";
       default: return "https://news.einfomax.co.kr/...";
     }
   };
