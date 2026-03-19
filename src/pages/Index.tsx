@@ -83,9 +83,12 @@ const Index = () => {
   const filteredInsights = useMemo(() => {
     let result = insights;
 
-    // Filter favorites
     if (showFavorites) {
       result = result.filter((ins) => (ins as any).is_favorited);
+    }
+
+    if (domainFilter) {
+      result = result.filter((ins) => ins.source_domain === domainFilter);
     }
 
     if (!searchQuery.trim()) return result;
@@ -100,7 +103,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites]);
+  }, [insights, searchQuery, showFavorites, domainFilter]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
