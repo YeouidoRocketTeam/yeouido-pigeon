@@ -141,12 +141,22 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
         {/* Bottom row: reliability + stocks + actions */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-            {insight.reliability_score != null && (
-              <span className="text-xs font-bold text-amber-500 tabular-nums shrink-0">
-                {insight.reliability_score}
-                <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
-              </span>
-            )}
+            {insight.reliability_score != null && (() => {
+              const details = insight.reliability_details as Record<string, { score: number }> | null;
+              const belowCount = details
+                ? Object.values(details).filter((d) => d.score < 40).length
+                : 0;
+              return belowCount >= 4 ? (
+                <span className="text-xs font-bold text-destructive shrink-0">
+                  ⚠️ 신뢰성 주의
+                </span>
+              ) : (
+                <span className="text-xs font-bold text-amber-500 tabular-nums shrink-0">
+                  {insight.reliability_score}
+                  <span className="text-[10px] font-normal text-muted-foreground ml-0.5">신뢰도</span>
+                </span>
+              );
+            })()}
             {stocks.map((stock) => (
               <a
                 key={stock.name}
