@@ -34,11 +34,11 @@ const WelcomeDialog = () => {
           </div>
 
           <p className="text-sm text-muted-foreground leading-relaxed">
-            놓치기 쉬운 투자 기사나 영상을
+            그동안 저장만해뒀던 투자 정보,
             <br />
-            링크 하나로 저장하면
+            <span className="font-semibold text-foreground">공유</span>하기 버튼 하나로 정리하고
             <br />
-            <span className="font-semibold text-foreground">핵심 내용</span>만 골라서 보여드려요.
+            <span className="font-semibold text-foreground">핵심 내용</span> 받아보세요.
           </p>
 
           <p className="text-sm text-muted-foreground leading-relaxed">
