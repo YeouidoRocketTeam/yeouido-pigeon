@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Link2, Youtube } from "lucide-react";
+import { ExternalLink, Link2, Youtube } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const WelcomeDialog = () => {
