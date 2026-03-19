@@ -14,7 +14,7 @@ interface AddInsightDialogProps {
   onExternalOpenChange?: (open: boolean) => void;
 }
 
-type AnalysisType = "news" | "screenshot" | "youtube" | null;
+type AnalysisType = "news" | "screenshot" | "youtube" | "sns" | null;
 
 const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange }: AddInsightDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
