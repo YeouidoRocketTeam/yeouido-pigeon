@@ -11,8 +11,27 @@ interface StockChange {
   changePercent: number;
 }
 
-async function fetchStockPrice(stockName: string): Promise<StockChange | null> {
+async function fetchStockPrice(stockName: string, stockCode?: string): Promise<StockChange | null> {
   try {
+    // If we have a stock code, use it directly
+    if (stockCode) {
+      const priceUrl = `https://m.stock.naver.com/api/stock/${stockCode}/basic`;
+      const priceRes = await fetch(priceUrl, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+      });
+      if (priceRes.ok) {
+        const priceData = await priceRes.json();
+        const changePercent = parseFloat(
+          priceData?.fluctuationsRatio || priceData?.compareToPreviousClosePrice?.ratio || "0"
+        );
+        return {
+          name: priceData?.stockName || stockName,
+          changePercent,
+        };
+      }
+    }
+
+    // Fallback: search by name
     const searchUrl = `https://m.stock.naver.com/api/search/all?query=${encodeURIComponent(stockName)}`;
     const searchRes = await fetch(searchUrl, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -23,7 +42,6 @@ async function fetchStockPrice(stockName: string): Promise<StockChange | null> {
     const item = Array.isArray(items) && items.length > 0 ? items[0] : null;
 
     if (!item) {
-      // Try alternative API structure
       const stocks = searchData?.stocks || [];
       if (stocks.length === 0) return null;
       const stock = stocks[0];
@@ -36,7 +54,6 @@ async function fetchStockPrice(stockName: string): Promise<StockChange | null> {
     const code = item.cd || item.code || item.stockCode;
     if (!code) return null;
 
-    // Fetch current price data
     const priceUrl = `https://m.stock.naver.com/api/stock/${code}/basic`;
     const priceRes = await fetch(priceUrl, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -78,16 +95,16 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    // Get the authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub as string;
+    const userId = user.id;
 
     // Get user's threshold setting from profile
     const { data: profileData } = await supabase
@@ -106,28 +123,40 @@ Deno.serve(async (req) => {
 
     if (!insights || insights.length === 0) {
       return new Response(
-        JSON.stringify({ success: true, message: "No stocks to monitor", notifications: 0 }),
+        JSON.stringify({ success: true, message: "No stocks to monitor", checkedStocks: 0, significantChanges: 0, notifications: 0 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Collect unique stock names and map to insights
-    const stockInsightMap = new Map<string, { insightId: string; title: string }[]>();
+    // Collect unique stock names/codes and map to insights
+    // stocks can be: string[] or {name, code}[]
+    const stockInsightMap = new Map<string, { insightId: string; title: string; code?: string }[]>();
+    const stockCodeMap = new Map<string, string>(); // stockName -> stockCode
+
     for (const insight of insights) {
-      const stocks = (insight.stocks as string[]) || [];
-      for (const stock of stocks) {
-        if (!stockInsightMap.has(stock)) stockInsightMap.set(stock, []);
-        stockInsightMap.get(stock)!.push({ insightId: insight.id, title: insight.ai_title || "" });
+      const rawStocks = (insight.stocks as any[]) || [];
+      for (const stock of rawStocks) {
+        const stockName = typeof stock === "string" ? stock : stock?.name;
+        const stockCode = typeof stock === "string" ? "" : (stock?.code || "");
+        if (!stockName) continue;
+
+        if (!stockInsightMap.has(stockName)) stockInsightMap.set(stockName, []);
+        stockInsightMap.get(stockName)!.push({ insightId: insight.id, title: insight.ai_title || "" });
+        if (stockCode) stockCodeMap.set(stockName, stockCode);
       }
     }
 
-    // THRESHOLD is now set from user profile above
     const significantChanges: { stock: StockChange; insights: { insightId: string; title: string }[] }[] = [];
 
-    // Check each stock (limit to first 10 to avoid rate limiting)
-    const stockNames = Array.from(stockInsightMap.keys()).slice(0, 10);
+    // Check each stock (limit to first 15 to avoid rate limiting)
+    const stockNames = Array.from(stockInsightMap.keys()).slice(0, 15);
+    console.log(`Checking ${stockNames.length} stocks with threshold ${THRESHOLD}%:`, stockNames);
+
     for (const stockName of stockNames) {
-      const result = await fetchStockPrice(stockName);
+      const code = stockCodeMap.get(stockName);
+      const result = await fetchStockPrice(stockName, code);
+      console.log(`${stockName} (${code || 'no code'}): ${result ? result.changePercent + '%' : 'failed'}`);
+
       if (result && Math.abs(result.changePercent) >= THRESHOLD) {
         significantChanges.push({
           stock: result,
@@ -148,7 +177,6 @@ Deno.serve(async (req) => {
         .map((s) => `${s.name} ${s.changePercent > 0 ? "+" : ""}${s.changePercent.toFixed(1)}% ${s.changePercent > 0 ? "상승" : "하락"}!!`)
         .join("\n");
 
-      // Pick the first related insight
       const relatedInsight = significantChanges[0].insights[0];
 
       const { error: insertError } = await supabase.from("notifications").insert({
