@@ -16,40 +16,50 @@ interface NaverNewsItem {
   pubDate: string;
 }
 
-/** Strip HTML tags from Naver API response */
 function stripHtml(str: string): string {
   return str.replace(/<[^>]+>/g, "").replace(/&[a-z]+;/gi, " ").trim();
 }
 
-/** Generate embedding via Lovable AI gateway (Gemini embedding) */
-async function generateEmbedding(text: string, lovableApiKey: string): Promise<number[] | null> {
+/** Extract 2-3 key search terms from title using AI */
+async function extractSearchQuery(title: string, summary: string, lovableApiKey: string): Promise<string> {
   try {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/text-embedding-004",
-        input: text.slice(0, 2000),
+        model: "google/gemini-2.5-flash-lite",
+        messages: [
+          {
+            role: "system",
+            content: "Extract 2-3 core Korean search keywords from the given title and summary for Naver News search. Output ONLY the keywords separated by spaces, nothing else. Focus on company names, industry terms, or key events.",
+          },
+          { role: "user", content: `제목: ${title}\n요약: ${summary}` },
+        ],
+        temperature: 0,
+        max_tokens: 50,
       }),
     });
 
     if (!res.ok) {
-      console.error("Embedding API error:", res.status, await res.text());
-      return null;
+      console.error("Search query extraction error:", res.status);
+      // Fallback: extract Korean words from title
+      return title.replace(/[^\w가-힣\s]/g, "").split(/\s+/).slice(0, 3).join(" ");
     }
 
     const data = await res.json();
-    return data?.data?.[0]?.embedding || null;
+    const query = data.choices?.[0]?.message?.content?.trim() || "";
+    console.log("Extracted search query:", query);
+    return query || title.replace(/[^\w가-힣\s]/g, "").split(/\s+/).slice(0, 3).join(" ");
   } catch (e) {
-    console.error("generateEmbedding error:", e);
-    return null;
+    console.error("extractSearchQuery error:", e);
+    return title.replace(/[^\w가-힣\s]/g, "").split(/\s+/).slice(0, 3).join(" ");
   }
 }
 
-/** Search Naver News API for related articles */
+/** Search Naver News API */
 async function searchNaverNews(
   query: string,
   clientId: string,
@@ -60,7 +70,7 @@ async function searchNaverNews(
     const params = new URLSearchParams({
       query,
       display: String(display),
-      sort: "sim", // relevance
+      sort: "sim",
     });
 
     const res = await fetch(`${NAVER_API_URL}?${params}`, {
@@ -71,11 +81,13 @@ async function searchNaverNews(
     });
 
     if (!res.ok) {
-      console.error("Naver API error:", res.status, await res.text());
+      const errText = await res.text();
+      console.error("Naver API error:", res.status, errText);
       return [];
     }
 
     const data = await res.json();
+    console.log(`Naver search for "${query}": ${data.total} total, ${(data.items || []).length} returned`);
     return (data.items || []) as NaverNewsItem[];
   } catch (e) {
     console.error("searchNaverNews error:", e);
@@ -83,12 +95,56 @@ async function searchNaverNews(
   }
 }
 
-/** Use AI to compare original content with external sources and produce cross-verification flags */
+/** Find similar insights from DB using keyword/theme matching */
+async function findSimilarInsights(
+  supabase: any,
+  insightId: string,
+  userId: string,
+  themes: string[],
+  stocks: string[]
+): Promise<{ count: number; titles: string[] }> {
+  try {
+    // Search for insights with overlapping themes or stocks
+    const { data: allInsights, error } = await supabase
+      .from("insights")
+      .select("id, ai_title, themes, stocks")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .neq("id", insightId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error || !allInsights) return { count: 0, titles: [] };
+
+    const similar: string[] = [];
+    for (const ins of allInsights) {
+      const insThemes = Array.isArray(ins.themes) ? ins.themes : [];
+      const insStocks = Array.isArray(ins.stocks)
+        ? ins.stocks.map((s: any) => s.name || "")
+        : [];
+
+      const themeOverlap = themes.filter((t) => insThemes.includes(t)).length;
+      const stockOverlap = stocks.filter((s) => insStocks.includes(s)).length;
+
+      if (themeOverlap >= 1 || stockOverlap >= 1) {
+        similar.push(ins.ai_title || "");
+      }
+    }
+
+    return { count: similar.length, titles: similar.slice(0, 5) };
+  } catch (e) {
+    console.error("findSimilarInsights error:", e);
+    return { count: 0, titles: [] };
+  }
+}
+
+/** Use AI to evaluate cross-verification flags based on Naver results + similar insights */
 async function evaluateCrossVerification(
   originalTitle: string,
   originalSummary: string,
   naverArticles: NaverNewsItem[],
-  similarInsights: { insight_id: string; similarity: number }[],
+  similarCount: number,
+  similarTitles: string[],
   lovableApiKey: string
 ): Promise<boolean[]> {
   const naverContext = naverArticles
@@ -96,8 +152,8 @@ async function evaluateCrossVerification(
     .map((a, i) => `[${i + 1}] ${stripHtml(a.title)}: ${stripHtml(a.description)}`)
     .join("\n");
 
-  const vectorContext = similarInsights.length > 0
-    ? `\n\n기존 저장된 유사 인사이트 ${similarInsights.length}건 발견 (유사도: ${similarInsights.map(s => (s.similarity * 100).toFixed(0) + "%").join(", ")})`
+  const similarContext = similarCount > 0
+    ? `\n\n기존 저장된 유사 인사이트 ${similarCount}건:\n${similarTitles.map((t, i) => `- ${t}`).join("\n")}`
     : "\n\n기존 저장된 유사 인사이트 없음";
 
   const prompt = `당신은 투자 정보 교차검증 전문가입니다. 원본 콘텐츠와 외부 소스를 비교하여 5개 체크리스트 항목을 평가하세요.
@@ -106,9 +162,9 @@ async function evaluateCrossVerification(
 제목: ${originalTitle}
 요약: ${originalSummary}
 
-## 네이버 뉴스 검색 결과 (유사 기사)
+## 네이버 뉴스 검색 결과 (유사 기사 ${naverArticles.length}건)
 ${naverContext || "관련 기사 없음"}
-${vectorContext}
+${similarContext}
 
 ## 교차 검증 체크리스트 (부정적 조건이 해당하면 true)
 q1: 최초 출처와 작성자의 신뢰도에 대해 다른 소스들의 평가가 상충하는가?
@@ -118,12 +174,13 @@ q4: 정보의 유효 기간이나 시세 선반영 수준에 대한 판단이 �
 q5: 작성자의 숨겨진 이득 여부에 대해 '순수 정보'와 '광고' 사이 판단이 갈리는가?
 
 ## 판단 기준
-- 네이버 뉴스에서 유사한 내용의 기사가 여러 개 확인되면 → 교차검증 통과 경향 (false)
-- 검색 결과가 거의 없거나 내용이 상충하면 → 교차검증 실패 (true)
-- 벡터 유사 인사이트가 있고 같은 맥락이면 → 신뢰도 상승 (false)
+- 네이버 뉴스에서 유사한 내용의 기사가 3건 이상 확인되면 → 교차검증 통과 경향 (false 다수)
+- 네이버 뉴스에서 1~2건만 확인되면 → 일부 항목만 통과
+- 검색 결과가 거의 없거나 내용이 상충하면 → 교차검증 실패 (true 다수)
+- 유사 인사이트가 많고 같은 맥락이면 → 신뢰도 상승 (false 경향)
 - 관련 기사가 0건이면 q1~q5 모두 true로 판정
 
-JSON 배열로만 응답하세요: [true/false, true/false, true/false, true/false, true/false]`;
+STRICTLY respond with ONLY a JSON array of 5 booleans, e.g. [true, false, true, false, true]`;
 
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -143,14 +200,13 @@ JSON 배열로만 응답하세요: [true/false, true/false, true/false, true/fal
     });
 
     if (!res.ok) {
-      console.error("Cross-verify AI error:", res.status);
-      return [true, true, true, true, true]; // worst case
+      console.error("Cross-verify AI error:", res.status, await res.text());
+      return [true, true, true, true, true];
     }
 
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content?.trim() || "";
-    
-    // Extract JSON array from response
+
     const match = content.match(/\[[\s\S]*?\]/);
     if (match) {
       const flags = JSON.parse(match[0]);
@@ -173,7 +229,7 @@ serve(async (req) => {
   }
 
   try {
-    const { insightId, title, summary, content, userId } = await req.json();
+    const { insightId, title, summary, content, userId, themes, stocks } = await req.json();
 
     if (!insightId || !title) {
       return new Response(
@@ -194,62 +250,26 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 1. Generate embedding for the content
-    const textForEmbedding = `${title}\n${summary || ""}\n${(content || "").slice(0, 1500)}`;
-    const embedding = await generateEmbedding(textForEmbedding, lovableApiKey);
+    // 1. Extract optimized search query from title
+    const searchQuery = await extractSearchQuery(title, summary || "", lovableApiKey);
 
-    // 2. Store embedding in vector store
-    if (embedding && userId) {
-      const { error: embedError } = await supabase
-        .from("insight_embeddings")
-        .upsert({
-          insight_id: insightId,
-          user_id: userId,
-          content_text: textForEmbedding.slice(0, 5000),
-          embedding: JSON.stringify(embedding),
-        }, { onConflict: "insight_id" });
-
-      if (embedError) {
-        console.error("Embedding store error:", embedError);
-      } else {
-        console.log("Embedding stored for insight:", insightId);
-      }
-    }
-
-    // 3. Search for similar insights in vector store
-    let similarInsights: { insight_id: string; similarity: number }[] = [];
-    if (embedding) {
-      const { data: matches, error: matchError } = await supabase
-        .rpc("match_insights", {
-          query_embedding: JSON.stringify(embedding),
-          match_threshold: 0.65,
-          match_count: 5,
-          p_user_id: userId || null,
-        });
-
-      if (matchError) {
-        console.error("Vector search error:", matchError);
-      } else {
-        // Exclude the current insight from results
-        similarInsights = (matches || []).filter(
-          (m: any) => m.insight_id !== insightId
-        );
-        console.log(`Found ${similarInsights.length} similar insights`);
-      }
-    }
-
-    // 4. Search Naver News for related articles
-    // Extract key terms from title for search query
-    const searchQuery = title.replace(/[^\w가-힣\s]/g, "").slice(0, 50);
+    // 2. Search Naver News for related articles
     const naverArticles = await searchNaverNews(searchQuery, naverClientId, naverClientSecret);
-    console.log(`Found ${naverArticles.length} Naver news articles`);
+    console.log(`Naver News: ${naverArticles.length} articles found`);
 
-    // 5. Evaluate cross-verification using AI
+    // 3. Find similar insights from DB using keyword/theme matching
+    const stockNames = Array.isArray(stocks) ? stocks.map((s: any) => s.name || s) : [];
+    const themeList = Array.isArray(themes) ? themes : [];
+    const similar = await findSimilarInsights(supabase, insightId, userId || "", themeList, stockNames);
+    console.log(`Similar insights: ${similar.count} found`);
+
+    // 4. Evaluate cross-verification using AI with real external data
     const crossVerifyFlags = await evaluateCrossVerification(
       title,
       summary || "",
       naverArticles,
-      similarInsights,
+      similar.count,
+      similar.titles,
       lovableApiKey
     );
 
@@ -260,7 +280,8 @@ serve(async (req) => {
         success: true,
         flags: crossVerifyFlags,
         naver_count: naverArticles.length,
-        similar_count: similarInsights.length,
+        similar_count: similar.count,
+        search_query: searchQuery,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

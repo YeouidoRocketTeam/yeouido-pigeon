@@ -688,6 +688,8 @@ Respond ONLY with the tool call.`,
             summary: analysis.ai_summary || "",
             content: pageContent.slice(0, 2000),
             userId: insightRecord?.user_id || null,
+            themes: analysis.themes || [],
+            stocks: analysis.stocks || [],
           }),
         }
       );
