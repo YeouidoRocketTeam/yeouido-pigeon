@@ -120,9 +120,9 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
             <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
               {/* All insights */}
               <button
-                onClick={() => { onSelectProject(null); onToggleFavorites?.(false); onClose(); }}
+                onClick={() => { onSelectProject(null); onToggleFavorites?.(false); onToggleMemos?.(false); onClose(); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  selectedProjectId === null && !showFavorites
+                  selectedProjectId === null && !showFavorites && !showMemos
                     ? "bg-primary/10 text-primary font-medium"
                     : "text-foreground hover:bg-muted"
                 }`}
@@ -133,7 +133,7 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
 
               {/* Favorites */}
               <button
-                onClick={() => { onToggleFavorites?.(true); onClose(); }}
+                onClick={() => { onToggleFavorites?.(true); onToggleMemos?.(false); onClose(); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   showFavorites
                     ? "bg-yellow-400/10 text-yellow-600 font-medium"
@@ -142,6 +142,19 @@ const ProjectSidebar = ({ selectedProjectId, onSelectProject, isOpen, onClose, s
               >
                 <Star className={`h-4 w-4 ${showFavorites ? "fill-yellow-400 text-yellow-400" : ""}`} />
                 <span>즐겨찾기</span>
+              </button>
+
+              {/* Memo storage */}
+              <button
+                onClick={() => { onToggleMemos?.(true); onToggleFavorites?.(false); onSelectProject(null); onClose(); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  showMemos
+                    ? "bg-amber-500/10 text-amber-600 font-medium"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <StickyNote className={`h-4 w-4 ${showMemos ? "text-amber-500" : ""}`} />
+                <span>메모 저장공간</span>
               </button>
 
               {projects.map((project) => (
