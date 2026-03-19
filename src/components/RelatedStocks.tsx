@@ -273,7 +273,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                   <p className="text-lg font-bold text-foreground tabular-nums">
                     {selected.stock.code || "—"}
                   </p>
-                  <p className="text-sm text-muted-foreground">{selected.stock.name}</p>
+                  <p className="text-sm text-muted-foreground">{sp?.name || selected.stock.name}</p>
                 </div>
                 <DrawerClose asChild>
                   <button className="p-2 rounded-lg hover:bg-muted transition-colors">
