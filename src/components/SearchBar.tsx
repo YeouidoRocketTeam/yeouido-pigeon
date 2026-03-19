@@ -37,6 +37,26 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
   const [tempFrom, setTempFrom] = useState<Date | undefined>(dateRange?.from);
   const [tempTo, setTempTo] = useState<Date | undefined>(dateRange?.to);
   const [selectingStep, setSelectingStep] = useState<"from" | "to">("from");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Generate months: 12 months back from now
+  const today = new Date();
+  const months = useMemo(() => {
+    const result: Date[] = [];
+    for (let i = 11; i >= 0; i--) {
+      result.push(startOfMonth(subMonths(today, i)));
+    }
+    return result;
+  }, []);
+
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+
+  // Available years for dropdown
+  const years = useMemo(() => {
+    const current = today.getFullYear();
+    return Array.from({ length: 5 }, (_, i) => current - 4 + i);
+  }, []);
 
   const handleOpenChange = (open: boolean) => {
     setPopoverOpen(open);
@@ -44,6 +64,15 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
       setTempFrom(dateRange?.from);
       setTempTo(dateRange?.to);
       setSelectingStep("from");
+      setSelectedYear(today.getFullYear());
+      setSelectedMonth(today.getMonth());
+
+      // Scroll to bottom (current month) after render
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 50);
     }
   };
 
@@ -59,6 +88,22 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
         setTempTo(tempFrom);
       } else {
         setTempTo(day);
+      }
+    }
+  };
+
+  const handleYearMonthChange = (year: number, month: number) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+    // Scroll to the selected month
+    const targetMonth = new Date(year, month, 1);
+    const monthIndex = months.findIndex(
+      (m) => m.getFullYear() === targetMonth.getFullYear() && m.getMonth() === targetMonth.getMonth()
+    );
+    if (monthIndex >= 0 && scrollRef.current) {
+      const monthElements = scrollRef.current.querySelectorAll("[data-month-block]");
+      if (monthElements[monthIndex]) {
+        monthElements[monthIndex].scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   };
