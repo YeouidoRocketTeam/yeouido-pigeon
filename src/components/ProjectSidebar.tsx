@@ -23,12 +23,14 @@ interface Project {
 }
 
 interface ProjectSidebarProps {
-  selectedProjectId: string | null; // null means "all", "favorites" means favorites
+  selectedProjectId: string | null;
   onSelectProject: (projectId: string | null) => void;
   isOpen: boolean;
   onClose: () => void;
   showFavorites?: boolean;
   onToggleFavorites?: (show: boolean) => void;
+  showMemos?: boolean;
+  onToggleMemos?: (show: boolean) => void;
 }
 
 const PROJECT_COLORS = [
