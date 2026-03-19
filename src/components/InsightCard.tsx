@@ -131,6 +131,13 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
           </p>
         )}
 
+        {/* Memo preview */}
+        {insight.memo && (
+          <p className="text-[11px] text-muted-foreground line-clamp-1 mb-1.5 italic">
+            📝 {insight.memo}
+          </p>
+        )}
+
         {/* Bottom row: reliability + stocks + actions */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
