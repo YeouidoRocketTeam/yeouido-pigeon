@@ -126,6 +126,12 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
           "투자 관련 채널의 영상을 지원합니다",
           "비공개 영상은 분석이 제한될 수 있습니다",
         ];
+      case "sns":
+        return [
+          "X(트위터), 네이버 블로그, 티스토리 등의 URL을 지원합니다",
+          "공개 게시물만 분석이 가능합니다",
+          "투자 관련 의견이나 분석 글에 적합합니다",
+        ];
       default:
         return [
           "전체 기사 URL을 붙여넣으면 가장 정확한 분석이 가능합니다",
