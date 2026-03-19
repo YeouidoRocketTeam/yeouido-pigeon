@@ -44,7 +44,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
       if (!error && data?.prices) {
         const priceMap: Record<string, StockPrice> = {};
         for (const p of data.prices) {
-          priceMap[p.name] = p;
+          priceMap[p.code] = p;
         }
         setPrices(priceMap);
         setLastUpdated(new Date());
@@ -93,7 +93,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
 
   const handleStockClick = (e: React.MouseEvent, stock: Stock) => {
     e.preventDefault();
-    const priceData = prices[stock.name] || null;
+    const priceData = prices[stock.code] || null;
     setSelectedStock({ stock, price: priceData });
   };
 
@@ -176,7 +176,8 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
         {/* Stock list */}
         <div className="divide-y divide-border">
           {stocks.map((stock) => {
-            const priceData = prices[stock.name];
+            const priceData = prices[stock.code];
+            const displayName = priceData?.name || stock.name;
             const badge = getRelevanceBadge(stock.reason);
             const isPositive = priceData && priceData.changePercent > 0;
             const isNegative = priceData && priceData.changePercent < 0;
@@ -200,7 +201,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                   />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {stock.name}
+                      {displayName}
                     </p>
                     <div className="flex items-center gap-2">
                       {stock.code && (
@@ -272,7 +273,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                   <p className="text-lg font-bold text-foreground tabular-nums">
                     {selected.stock.code || "—"}
                   </p>
-                  <p className="text-sm text-muted-foreground">{selected.stock.name}</p>
+                  <p className="text-sm text-muted-foreground">{sp?.name || selected.stock.name}</p>
                 </div>
                 <DrawerClose asChild>
                   <button className="p-2 rounded-lg hover:bg-muted transition-colors">
