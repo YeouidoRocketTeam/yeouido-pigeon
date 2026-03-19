@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { TrendingUp, ChevronRight, RefreshCw, X, TrendingUp as ChartIcon } from "lucide-react";
+import { TrendingUp, ChevronRight, RefreshCw, X, TrendingUp as ChartIcon, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Stock {
   name: string;
