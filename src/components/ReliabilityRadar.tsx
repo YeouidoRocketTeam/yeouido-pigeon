@@ -83,6 +83,21 @@ const ReliabilityRadar = ({ scores, size = 260 }: RadarChartProps) => {
           );
         })}
 
+        {/* 40-point baseline */}
+        <polygon
+          points={AXES.map((_, i) => {
+            const r = (40 / 100) * maxR;
+            const p = polarToCartesian(cx, cy, r, i * angleStep);
+            return `${p.x},${p.y}`;
+          }).join(" ")}
+          fill="hsl(48, 96%, 70%)"
+          fillOpacity={0.25}
+          stroke="hsl(48, 96%, 60%)"
+          strokeWidth={1}
+          strokeDasharray="4 2"
+          strokeLinejoin="round"
+        />
+
         {/* Data fill */}
         <polygon
           points={dataPolygon}
