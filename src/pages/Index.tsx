@@ -46,6 +46,7 @@ const Index = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showMemos, setShowMemos] = useState(false);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
 
   const fetchInsights = useCallback(async () => {
