@@ -184,16 +184,12 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
               <Info className="h-4 w-4" />
             </button>
           </div>
-          {details && Object.values(details).filter((d) => (d as CriterionDetail).score < 40).length >= 4 ? (
-            <span className="text-3xl font-bold text-destructive">신뢰도X</span>
-          ) : (
-            <div className="flex items-baseline gap-0.5">
-              <span className={`text-3xl font-bold tabular-nums ${getScoreColor(normalizedScore)}`}>
-                {normalizedScore}
-              </span>
-              <span className="text-sm text-muted-foreground">/100</span>
-            </div>
-          )}
+          <div className="flex items-baseline gap-0.5">
+            <span className={`text-3xl font-bold tabular-nums ${getScoreColor(normalizedScore)}`}>
+              {normalizedScore}
+            </span>
+            <span className="text-sm text-muted-foreground">/100</span>
+          </div>
         </div>
 
         <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted mb-2">
@@ -203,27 +199,12 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           />
         </div>
 
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-4">
           <span className={`text-xs font-medium ${getScoreColor(normalizedScore)}`}>
             {getScoreLabel(normalizedScore)}
           </span>
           <span className="text-xs text-muted-foreground">ROC 가중치 기반 6항목 평가</span>
         </div>
-
-        {details && (() => {
-          const belowCount = Object.values(details).filter((d) => (d as CriterionDetail).score < 40).length;
-          if (belowCount >= 4) {
-            return (
-              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 mb-2">
-                <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-xs text-destructive leading-relaxed font-medium">
-                  6개 신뢰 지표 중 {belowCount}개 항목에서 기준치(40점) 미달이 확인되어, 신뢰 불가로 의사결정에 주의하시기 바랍니다.
-                </p>
-              </div>
-            );
-          }
-          return null;
-        })()}
 
       </div>
 
