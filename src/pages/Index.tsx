@@ -92,25 +92,16 @@ const Index = () => {
       result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
     }
 
-    // Period filter
-    if (periodFilter !== "all") {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      let startDate: Date;
-
-      if (periodFilter === "today") {
-        startDate = today;
-      } else if (periodFilter === "week") {
-        startDate = new Date(today);
-        startDate.setDate(startDate.getDate() - 7);
-      } else if (periodFilter === "month") {
-        startDate = new Date(today);
-        startDate.setMonth(startDate.getMonth() - 1);
-      } else {
-        startDate = new Date(0);
-      }
-
-      result = result.filter((ins) => new Date(ins.created_at) >= startDate);
+    // Date range filter
+    if (dateRange) {
+      const startOfDay = new Date(dateRange.from);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(dateRange.to);
+      endOfDay.setHours(23, 59, 59, 999);
+      result = result.filter((ins) => {
+        const created = new Date(ins.created_at);
+        return created >= startOfDay && created <= endOfDay;
+      });
     }
 
     if (!searchQuery.trim()) return result;
