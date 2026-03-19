@@ -7,16 +7,30 @@ type Insight = Database["public"]["Tables"]["insights"]["Row"];
 
 interface MemoSidebarProps {
   insight: Insight;
+  onUpdated?: () => void;
 }
 
-const MemoSidebar = ({ insight }: MemoSidebarProps) => {
+const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
   const [memo, setMemo] = useState(insight.memo || "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // Fetch latest memo from DB when insight changes
   useEffect(() => {
-    setMemo(insight.memo || "");
+    let cancelled = false;
+    const fetchMemo = async () => {
+      const { data } = await supabase
+        .from("insights")
+        .select("memo")
+        .eq("id", insight.id)
+        .single();
+      if (!cancelled && data) {
+        setMemo(data.memo || "");
+      }
+    };
+    fetchMemo();
+    return () => { cancelled = true; };
   }, [insight.id]);
 
   const saveMemo = useCallback(async () => {
@@ -29,8 +43,9 @@ const MemoSidebar = ({ insight }: MemoSidebarProps) => {
     if (!error) {
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
+      onUpdated?.();
     }
-  }, [memo, insight.id]);
+  }, [memo, insight.id, onUpdated]);
 
   const formattedDate = new Date(insight.created_at).toLocaleDateString("ko-KR", {
     year: "numeric",
