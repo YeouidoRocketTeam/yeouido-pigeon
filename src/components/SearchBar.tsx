@@ -1,24 +1,16 @@
-import { useState, useRef, useEffect, useMemo } from "react";
-import { Search, X, CalendarSearch, ChevronDown } from "lucide-react";
-import { format, subMonths, startOfMonth, addMonths } from "date-fns";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { Search, X, CalendarSearch } from "lucide-react";
+import { format, subMonths, startOfMonth, getDaysInMonth } from "date-fns";
 import { ko } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface DateRange {
   from: Date;
@@ -32,6 +24,95 @@ interface SearchBarProps {
   onDateRangeChange?: (range: DateRange | null) => void;
 }
 
+/** A single scrollable date segment (year, month, or day) */
+const ScrollSegment = ({
+  value,
+  min,
+  max,
+  pad,
+  onChange,
+  suffix = "",
+}: {
+  value: number;
+  min: number;
+  max: number;
+  pad: number;
+  onChange: (v: number) => void;
+  suffix?: string;
+}) => {
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY > 0 ? -1 : 1;
+      let next = value + delta;
+      if (next > max) next = min;
+      if (next < min) next = max;
+      onChange(next);
+    },
+    [value, min, max, onChange]
+  );
+
+  return (
+    <span
+      onWheel={handleWheel}
+      className="cursor-ns-resize select-none hover:bg-primary/20 rounded px-0.5 transition-colors"
+      title="스크롤로 변경"
+    >
+      {String(value).padStart(pad, "0")}{suffix}
+    </span>
+  );
+};
+
+/** Scrollable date display: YYYY/MM/DD */
+const ScrollableDate = ({
+  date,
+  onChange,
+  placeholder = "YYYY/MM/DD",
+  isActive,
+}: {
+  date: Date | undefined;
+  onChange: (d: Date) => void;
+  placeholder?: string;
+  isActive: boolean;
+}) => {
+  if (!date) {
+    return (
+      <span className={cn("px-2 py-1 rounded text-xs", isActive ? "bg-muted ring-1 ring-primary/30" : "bg-muted text-muted-foreground")}>
+        {placeholder}
+      </span>
+    );
+  }
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const maxDay = getDaysInMonth(date);
+  const today = new Date();
+
+  const updateDate = (y: number, m: number, d: number) => {
+    const daysInMonth = getDaysInMonth(new Date(y, m - 1));
+    const safeDay = Math.min(d, daysInMonth);
+    const newDate = new Date(y, m - 1, safeDay);
+    if (newDate <= today) {
+      onChange(newDate);
+    }
+  };
+
+  return (
+    <span className={cn(
+      "px-2 py-1 rounded text-xs font-medium inline-flex items-center gap-0",
+      "bg-primary/10 text-primary"
+    )}>
+      <ScrollSegment value={year} min={2020} max={today.getFullYear()} pad={4} onChange={(v) => updateDate(v, month, day)} />
+      <span>/</span>
+      <ScrollSegment value={month} min={1} max={12} pad={2} onChange={(v) => updateDate(year, v, day)} />
+      <span>/</span>
+      <ScrollSegment value={day} min={1} max={maxDay} pad={2} onChange={(v) => updateDate(year, month, v)} />
+    </span>
+  );
+};
+
 const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarProps) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [tempFrom, setTempFrom] = useState<Date | undefined>(dateRange?.from);
@@ -39,7 +120,6 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
   const [selectingStep, setSelectingStep] = useState<"from" | "to">("from");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Generate months: 12 months back from now
   const today = new Date();
   const months = useMemo(() => {
     const result: Date[] = [];
@@ -49,25 +129,12 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
     return result;
   }, []);
 
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
-
-  // Available years for dropdown
-  const years = useMemo(() => {
-    const current = today.getFullYear();
-    return Array.from({ length: 5 }, (_, i) => current - 4 + i);
-  }, []);
-
   const handleOpenChange = (open: boolean) => {
     setPopoverOpen(open);
     if (open) {
       setTempFrom(dateRange?.from);
       setTempTo(dateRange?.to);
       setSelectingStep("from");
-      setSelectedYear(today.getFullYear());
-      setSelectedMonth(today.getMonth());
-
-      // Scroll to bottom (current month) after render
       setTimeout(() => {
         if (scrollRef.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -88,22 +155,6 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
         setTempTo(tempFrom);
       } else {
         setTempTo(day);
-      }
-    }
-  };
-
-  const handleYearMonthChange = (year: number, month: number) => {
-    setSelectedYear(year);
-    setSelectedMonth(month);
-    // Scroll to the selected month
-    const targetMonth = new Date(year, month, 1);
-    const monthIndex = months.findIndex(
-      (m) => m.getFullYear() === targetMonth.getFullYear() && m.getMonth() === targetMonth.getMonth()
-    );
-    if (monthIndex >= 0 && scrollRef.current) {
-      const monthElements = scrollRef.current.querySelectorAll("[data-month-block]");
-      if (monthElements[monthIndex]) {
-        monthElements[monthIndex].scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   };
@@ -155,55 +206,24 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
-            {/* Header: step label + year/month selectors */}
+            {/* Header with scrollable date segments */}
             <div className="p-3 border-b space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-foreground">
-                  {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
-                </p>
-                <div className="flex items-center gap-1">
-                  <Select
-                    value={String(selectedYear)}
-                    onValueChange={(v) => handleYearMonthChange(Number(v), selectedMonth)}
-                  >
-                    <SelectTrigger className="h-7 w-[80px] text-xs border-0 bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {years.map((y) => (
-                        <SelectItem key={y} value={String(y)}>{y}년</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={String(selectedMonth)}
-                    onValueChange={(v) => handleYearMonthChange(selectedYear, Number(v))}
-                  >
-                    <SelectTrigger className="h-7 w-[70px] text-xs border-0 bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i} value={String(i)}>{i + 1}월</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className={cn(
-                  "px-2 py-1 rounded",
-                  tempFrom ? "bg-primary/10 text-primary font-medium" : "bg-muted"
-                )}>
-                  {tempFrom ? format(tempFrom, "yyyy/MM/dd") : "YYYY/MM/DD"}
-                </span>
-                <span>~</span>
-                <span className={cn(
-                  "px-2 py-1 rounded",
-                  tempTo ? "bg-primary/10 text-primary font-medium" : "bg-muted"
-                )}>
-                  {tempTo ? format(tempTo, "yyyy/MM/dd") : "YYYY/MM/DD"}
-                </span>
+              <p className="text-sm font-medium text-foreground">
+                {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
+              </p>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <ScrollableDate
+                  date={tempFrom}
+                  onChange={(d) => { setTempFrom(d); setSelectingStep("to"); }}
+                  isActive={selectingStep === "from"}
+                />
+                <span className="text-xs">~</span>
+                <ScrollableDate
+                  date={tempTo}
+                  onChange={(d) => setTempTo(d)}
+                  isActive={selectingStep === "to"}
+                />
+                <span className="text-[10px] text-muted-foreground/60 ml-1">↕ 스크롤</span>
               </div>
             </div>
 
