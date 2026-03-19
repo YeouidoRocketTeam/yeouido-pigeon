@@ -187,7 +187,6 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
       </div>
     </motion.div>
   );
-});
-InsightCard.displayName = "InsightCard";
+};
 
 export default InsightCard;
