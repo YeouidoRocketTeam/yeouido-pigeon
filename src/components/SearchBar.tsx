@@ -155,10 +155,41 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
-            <div className="p-3 border-b">
-              <p className="text-sm font-medium text-foreground mb-2">
-                {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
-              </p>
+            {/* Header: step label + year/month selectors */}
+            <div className="p-3 border-b space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">
+                  {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Select
+                    value={String(selectedYear)}
+                    onValueChange={(v) => handleYearMonthChange(Number(v), selectedMonth)}
+                  >
+                    <SelectTrigger className="h-7 w-[80px] text-xs border-0 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((y) => (
+                        <SelectItem key={y} value={String(y)}>{y}년</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={String(selectedMonth)}
+                    onValueChange={(v) => handleYearMonthChange(selectedYear, Number(v))}
+                  >
+                    <SelectTrigger className="h-7 w-[70px] text-xs border-0 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <SelectItem key={i} value={String(i)}>{i + 1}월</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn(
                   "px-2 py-1 rounded",
@@ -175,29 +206,47 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
                 </span>
               </div>
             </div>
-            <Calendar
-              mode="single"
-              selected={selectingStep === "from" ? tempFrom : tempTo}
-              onSelect={handleDaySelect}
-              disabled={(date) => date > new Date()}
-              modifiers={{
-                range_start: tempFrom ? [tempFrom] : [],
-                range_end: tempTo ? [tempTo] : [],
-                in_range: tempFrom && tempTo ? 
-                  Array.from({ length: Math.ceil((tempTo.getTime() - tempFrom.getTime()) / (1000 * 60 * 60 * 24)) - 1 }, (_, i) => {
-                    const d = new Date(tempFrom);
-                    d.setDate(d.getDate() + i + 1);
-                    return d;
-                  }) : [],
-              }}
-              modifiersStyles={{
-                range_start: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
-                range_end: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
-                in_range: { backgroundColor: "hsl(var(--primary) / 0.1)", borderRadius: "0" },
-              }}
-              locale={ko}
-              className={cn("p-3 pointer-events-auto")}
-            />
+
+            {/* Scrollable multi-month calendar */}
+            <div
+              ref={scrollRef}
+              className="h-[320px] overflow-y-auto"
+            >
+              {months.map((month, idx) => (
+                <div key={idx} data-month-block>
+                  <Calendar
+                    mode="single"
+                    month={month}
+                    selected={selectingStep === "from" ? tempFrom : tempTo}
+                    onSelect={handleDaySelect}
+                    disabled={(date) => date > new Date()}
+                    disableNavigation
+                    modifiers={{
+                      range_start: tempFrom ? [tempFrom] : [],
+                      range_end: tempTo ? [tempTo] : [],
+                      in_range: tempFrom && tempTo
+                        ? Array.from(
+                            { length: Math.max(0, Math.ceil((tempTo.getTime() - tempFrom.getTime()) / (1000 * 60 * 60 * 24)) - 1) },
+                            (_, i) => {
+                              const d = new Date(tempFrom);
+                              d.setDate(d.getDate() + i + 1);
+                              return d;
+                            }
+                          )
+                        : [],
+                    }}
+                    modifiersStyles={{
+                      range_start: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
+                      range_end: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
+                      in_range: { backgroundColor: "hsl(var(--primary) / 0.1)", borderRadius: "0" },
+                    }}
+                    locale={ko}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </div>
+              ))}
+            </div>
+
             <div className="p-3 border-t flex justify-end gap-2">
               <Button
                 variant="ghost"
