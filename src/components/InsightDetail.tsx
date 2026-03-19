@@ -277,7 +277,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
       {/* Mobile memo - shown below content */}
       <div className="mt-6 lg:hidden">
-        <MemoSidebar insight={insight} />
+        <MemoSidebar insight={insight} onUpdated={onUpdated} />
       </div>
 
       {/* AddInsightDialog controlled externally */}
