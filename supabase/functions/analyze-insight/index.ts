@@ -665,20 +665,15 @@ Respond ONLY with the tool call.`,
       reliabilityDetails[key] = { flags, score };
     }
 
-    // ── Run cross-verification, stock enrichment, and detail summary in PARALLEL ──
+    // ── Run cross-verification and detail summary in PARALLEL ──
     const insightRecordPromise = supabase
       .from("insights")
       .select("user_id")
       .eq("id", insightId)
       .single();
 
-    // Prepare stock enrichment
-    const existingNames = new Set((analysis.stocks || []).map((s: any) => s.name));
-    const themes = analysis.themes || [];
-    const keywords = (analysis.ai_keywords || "").split("\n").filter(Boolean);
-
-    // Launch all three tasks in parallel
-    const [crossVerifyResult, enrichResult, detailResult] = await Promise.allSettled([
+    // Launch tasks in parallel
+    const [crossVerifyResult, detailResult] = await Promise.allSettled([
       // Task 1: Cross-verification
       (async () => {
         const { data: insightRecord } = await insightRecordPromise;
@@ -708,72 +703,7 @@ Respond ONLY with the tool call.`,
         return null;
       })(),
 
-      // Task 2: Stock enrichment
-      (async () => {
-        if (themes.length === 0 && keywords.length === 0) return null;
-        console.log("Starting stock enrichment with themes:", themes, "keywords:", keywords);
-        const enrichResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${lovableApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash-lite",
-            messages: [
-              {
-                role: "system",
-                content: `You are a Korean stock market expert. Given investment themes and keywords, suggest additional related Korean stocks (KOSPI/KOSDAQ listed) that are NOT already in the provided list. Focus on stocks that would benefit from or be affected by these themes, even if they weren't directly mentioned in the original article. Only suggest well-known, actively traded stocks with accurate 6-digit codes. Return 3-5 additional stocks maximum. If no relevant stocks come to mind, return an empty array. Respond ONLY with the tool call.`,
-              },
-              {
-                role: "user",
-                content: `투자 테마: ${themes.join(", ")}\n키워드: ${keywords.join(", ")}\n\n이미 추출된 종목 (제외): ${Array.from(existingNames).join(", ") || "없음"}\n\n위 테마/키워드와 연관되지만 기사에 직접 언급되지 않은 한국 상장 종목을 추천해줘.`,
-              },
-            ],
-            tools: [
-              {
-                type: "function",
-                function: {
-                  name: "suggest_related_stocks",
-                  description: "Suggest additional Korean stocks related to the given themes/keywords",
-                  parameters: {
-                    type: "object",
-                    properties: {
-                      related_stocks: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            name: { type: "string", description: "Korean stock name (e.g. 삼성전자)" },
-                            code: { type: "string", description: "6-digit Korean stock code (e.g. 005930)" },
-                            reason: { type: "string", description: "Brief Korean reason why this stock is related to the themes (max 30 chars)" },
-                          },
-                          required: ["name", "code", "reason"],
-                        },
-                      },
-                    },
-                    required: ["related_stocks"],
-                    additionalProperties: false,
-                  },
-                },
-              },
-            ],
-            tool_choice: { type: "function", function: { name: "suggest_related_stocks" } },
-          }),
-        });
-        if (enrichResponse.ok) {
-          const enrichData = await enrichResponse.json();
-          const enrichToolCall = enrichData.choices?.[0]?.message?.tool_calls?.[0];
-          if (enrichToolCall) {
-            return JSON.parse(enrichToolCall.function.arguments);
-          }
-        } else {
-          console.error("Stock enrichment failed:", enrichResponse.status);
-        }
-        return null;
-      })(),
-
-      // Task 3: Detail summary
+      // Task 2: Detail summary
       (async () => {
         const detailResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
@@ -815,18 +745,6 @@ Respond ONLY with the tool call.`,
       console.log(
         `Cross-verification RAG: naver=${cvResult.naver_count}, similar=${cvResult.similar_count}, score=${reliabilityDetails.cross_verification.score}`
       );
-    }
-
-    // Process stock enrichment result
-    let enrichedStocks = analysis.stocks || [];
-    if (enrichResult.status === "fulfilled" && enrichResult.value) {
-      const newStocks = (enrichResult.value.related_stocks || []).filter(
-        (s: any) => s.name && s.code && !existingNames.has(s.name)
-      );
-      if (newStocks.length > 0) {
-        enrichedStocks = [...enrichedStocks, ...newStocks];
-        console.log(`Stock enrichment: added ${newStocks.length} related stocks:`, newStocks.map((s: any) => s.name));
-      }
     }
 
     // Process detail summary result
