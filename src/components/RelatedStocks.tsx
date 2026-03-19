@@ -93,7 +93,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
 
   const handleStockClick = (e: React.MouseEvent, stock: Stock) => {
     e.preventDefault();
-    const priceData = prices[stock.name] || null;
+    const priceData = prices[stock.code] || null;
     setSelectedStock({ stock, price: priceData });
   };
 
