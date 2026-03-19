@@ -165,11 +165,13 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) setShowFavorites(false); }}
+        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) { setShowFavorites(false); setShowMemos(false); } }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
         showFavorites={showFavorites}
-        onToggleFavorites={(show) => { setShowFavorites(show); if (show) setSelectedProjectId(null); }}
+        onToggleFavorites={(show) => { setShowFavorites(show); if (show) { setSelectedProjectId(null); setShowMemos(false); } }}
+        showMemos={showMemos}
+        onToggleMemos={(show) => { setShowMemos(show); if (show) { setSelectedProjectId(null); setShowFavorites(false); } }}
       />
 
       {/* Header */}
