@@ -240,8 +240,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   </p>
                 )}
               </div>
-                </div>
-              </div>
             )}
           </div>
 
