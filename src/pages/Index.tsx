@@ -46,7 +46,7 @@ const Index = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
-  const [periodFilter, setPeriodFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
