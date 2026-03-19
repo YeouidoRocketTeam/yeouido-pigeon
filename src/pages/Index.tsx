@@ -297,7 +297,7 @@ const Index = () => {
       </main>
 
       {/* Fixed bottom CTA + Drawer */}
-      <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
+      <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} onNavigateToInsight={(insight) => setSelectedInsight(insight)} />
       <WelcomeDialog />
     </div>
   );

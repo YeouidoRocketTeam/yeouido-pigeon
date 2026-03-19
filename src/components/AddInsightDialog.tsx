@@ -362,6 +362,9 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Analyzing overlay */}
+      <AnalyzingOverlay isVisible={isAnalyzing} />
     </>
   );
 };
