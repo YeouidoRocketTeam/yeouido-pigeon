@@ -145,6 +145,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
     switch (selectedType) {
       case "news": return "뉴스 기사";
       case "youtube": return "유튜브 영상";
+      case "sns": return "SNS 게시물";
       default: return "";
     }
   };
