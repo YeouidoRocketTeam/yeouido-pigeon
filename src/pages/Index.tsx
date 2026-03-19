@@ -261,13 +261,24 @@ const Index = () => {
                 </h2>
                 <div className="space-y-3">
                   {group.items.map((insight, i) => (
-                    <InsightCard
-                      key={insight.id}
-                      insight={insight}
-                      index={i}
-                      onClick={() => setSelectedInsight(insight)}
-                      onDeleted={fetchInsights}
-                    />
+                    showMemos ? (
+                      <MemoCard
+                        key={insight.id}
+                        insight={insight}
+                        index={i}
+                        onClick={() => setSelectedInsight(insight)}
+                        onDeleted={fetchInsights}
+                      />
+                    ) : (
+                      <InsightCard
+                        key={insight.id}
+                        insight={insight}
+                        index={i}
+                        onClick={() => setSelectedInsight(insight)}
+                        onDeleted={fetchInsights}
+                      />
+                    )
+                  ))}
                   ))}
                 </div>
               </div>
