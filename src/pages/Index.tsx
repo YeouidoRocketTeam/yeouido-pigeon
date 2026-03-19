@@ -225,8 +225,32 @@ const Index = () => {
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
+      {/* Period Filter */}
+      <div className="max-w-2xl mx-auto px-4 pt-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          {[
+            { key: "all", label: "전체" },
+            { key: "today", label: "오늘" },
+            { key: "week", label: "이번 주" },
+            { key: "month", label: "이번 달" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setPeriodFilter(item.key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                periodFilter === item.key
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Content */}
-      <main className="max-w-2xl mx-auto px-4 py-6 pb-24">
+      <main className="max-w-2xl mx-auto px-4 py-4 pb-24">
         {loading ? (
           <div className="space-y-4">
             {[0, 1, 2].map((i) => (
