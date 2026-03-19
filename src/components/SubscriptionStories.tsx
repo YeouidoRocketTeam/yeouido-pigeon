@@ -261,7 +261,7 @@ const SubscriptionStories = ({ onFilterByDomain }: { onFilterByDomain?: (domain:
                 variant="outline"
                 size="sm"
                 className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                onClick={() => handleDelete(selectedSub.id)}
+                onClick={() => handleDelete(selectedSub)}
               >
                 <Trash2 className="h-4 w-4" />
                 구독 해제
