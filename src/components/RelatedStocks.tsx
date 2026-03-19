@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { TrendingUp, ChevronRight, RefreshCw, X, TrendingUp as ChartIcon } from "lucide-react";
+import { TrendingUp, ChevronRight, RefreshCw, X, TrendingUp as ChartIcon, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Stock {
   name: string;
@@ -71,13 +72,13 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
   const getRelevanceBadge = (reason: string) => {
     if (!reason) return null;
     const lower = reason.toLowerCase();
-    if (lower.includes("높") || lower.includes("직접") || lower.includes("핵심") || lower.includes("주요")) {
-      return { label: "관련도 높음", className: "bg-accent/10 text-accent" };
+    if (lower.includes("높") || lower.includes("직접") || lower.includes("핵심") || lower.includes("주요") || lower.includes("1순위")) {
+      return { label: "관련도 높음", className: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" };
     }
-    if (lower.includes("낮") || lower.includes("간접")) {
-      return { label: "관련도 낮음", className: "bg-muted text-muted-foreground" };
+    if (lower.includes("낮") || lower.includes("간접") || lower.includes("매크로") || lower.includes("유사성") || lower.includes("3순위")) {
+      return { label: "관련도 낮음", className: "bg-muted text-muted-foreground border border-border" };
     }
-    return { label: "관련도 보통", className: "bg-primary/10 text-primary" };
+    return { label: "관련도 보통", className: "bg-amber-500/10 text-amber-600 border border-amber-500/20" };
   };
 
   const getMarketStatusText = (status: string) => {
@@ -119,6 +120,48 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
               <TrendingUp className="w-4 h-4 text-accent" />
             </div>
             <h2 className="text-sm font-semibold text-foreground">관련 종목</h2>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="w-5 h-5 rounded-full border border-primary/30 bg-primary/5 flex items-center justify-center hover:bg-primary/10 transition-colors">
+                  <Info className="w-3 h-3 text-primary" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4 text-sm" side="bottom" align="start">
+                <p className="font-semibold text-foreground mb-3">관련 종목 선정 기준</p>
+                
+                <p className="text-xs font-medium text-muted-foreground mb-2">📋 선정 우선순위</p>
+                <div className="space-y-1.5 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">1순위</span>
+                    <span className="text-xs text-foreground">콘텐츠 본문·자막에 실명 언급된 종목</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">2순위</span>
+                    <span className="text-xs text-foreground">해당 산업·테마의 시가총액 상위 대표주</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">3순위</span>
+                    <span className="text-xs text-foreground">관련 공급망·경쟁사·수혜 섹터 종목</span>
+                  </div>
+                </div>
+
+                <p className="text-xs font-medium text-muted-foreground mb-2">🎯 관련도 판단 기준</p>
+                <div className="space-y-2">
+                  <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/20 p-2.5">
+                    <p className="text-xs font-semibold text-emerald-600 mb-0.5">관련도 높음</p>
+                    <p className="text-[11px] text-muted-foreground">콘텐츠에 직접 언급되거나 핵심 테마의 시총 1~2위 종목</p>
+                  </div>
+                  <div className="rounded-lg bg-amber-500/5 border border-amber-500/20 p-2.5">
+                    <p className="text-xs font-semibold text-amber-600 mb-0.5">관련도 보통</p>
+                    <p className="text-[11px] text-muted-foreground">동일 공급망·경쟁사·직접 수혜 관계 종목</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 border border-border p-2.5">
+                    <p className="text-xs font-semibold text-muted-foreground mb-0.5">관련도 낮음</p>
+                    <p className="text-[11px] text-muted-foreground">섹터 유사성 또는 매크로 환경 연관성만 있는 종목</p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             {loading && (
               <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
             )}
