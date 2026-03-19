@@ -1,16 +1,24 @@
-import { useState } from "react";
-import { Search, X, CalendarSearch } from "lucide-react";
-import { format } from "date-fns";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { Search, X, CalendarSearch, ChevronDown } from "lucide-react";
+import { format, subMonths, startOfMonth, addMonths } from "date-fns";
 import { ko } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DateRange {
   from: Date;
@@ -29,6 +37,26 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
   const [tempFrom, setTempFrom] = useState<Date | undefined>(dateRange?.from);
   const [tempTo, setTempTo] = useState<Date | undefined>(dateRange?.to);
   const [selectingStep, setSelectingStep] = useState<"from" | "to">("from");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Generate months: 12 months back from now
+  const today = new Date();
+  const months = useMemo(() => {
+    const result: Date[] = [];
+    for (let i = 11; i >= 0; i--) {
+      result.push(startOfMonth(subMonths(today, i)));
+    }
+    return result;
+  }, []);
+
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+
+  // Available years for dropdown
+  const years = useMemo(() => {
+    const current = today.getFullYear();
+    return Array.from({ length: 5 }, (_, i) => current - 4 + i);
+  }, []);
 
   const handleOpenChange = (open: boolean) => {
     setPopoverOpen(open);
@@ -36,6 +64,15 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
       setTempFrom(dateRange?.from);
       setTempTo(dateRange?.to);
       setSelectingStep("from");
+      setSelectedYear(today.getFullYear());
+      setSelectedMonth(today.getMonth());
+
+      // Scroll to bottom (current month) after render
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 50);
     }
   };
 
@@ -51,6 +88,22 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
         setTempTo(tempFrom);
       } else {
         setTempTo(day);
+      }
+    }
+  };
+
+  const handleYearMonthChange = (year: number, month: number) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+    // Scroll to the selected month
+    const targetMonth = new Date(year, month, 1);
+    const monthIndex = months.findIndex(
+      (m) => m.getFullYear() === targetMonth.getFullYear() && m.getMonth() === targetMonth.getMonth()
+    );
+    if (monthIndex >= 0 && scrollRef.current) {
+      const monthElements = scrollRef.current.querySelectorAll("[data-month-block]");
+      if (monthElements[monthIndex]) {
+        monthElements[monthIndex].scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   };
@@ -102,10 +155,41 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
-            <div className="p-3 border-b">
-              <p className="text-sm font-medium text-foreground mb-2">
-                {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
-              </p>
+            {/* Header: step label + year/month selectors */}
+            <div className="p-3 border-b space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">
+                  {selectingStep === "from" ? "시작일 선택" : "종료일 선택"}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Select
+                    value={String(selectedYear)}
+                    onValueChange={(v) => handleYearMonthChange(Number(v), selectedMonth)}
+                  >
+                    <SelectTrigger className="h-7 w-[80px] text-xs border-0 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((y) => (
+                        <SelectItem key={y} value={String(y)}>{y}년</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={String(selectedMonth)}
+                    onValueChange={(v) => handleYearMonthChange(selectedYear, Number(v))}
+                  >
+                    <SelectTrigger className="h-7 w-[70px] text-xs border-0 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <SelectItem key={i} value={String(i)}>{i + 1}월</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn(
                   "px-2 py-1 rounded",
@@ -122,29 +206,47 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
                 </span>
               </div>
             </div>
-            <Calendar
-              mode="single"
-              selected={selectingStep === "from" ? tempFrom : tempTo}
-              onSelect={handleDaySelect}
-              disabled={(date) => date > new Date()}
-              modifiers={{
-                range_start: tempFrom ? [tempFrom] : [],
-                range_end: tempTo ? [tempTo] : [],
-                in_range: tempFrom && tempTo ? 
-                  Array.from({ length: Math.ceil((tempTo.getTime() - tempFrom.getTime()) / (1000 * 60 * 60 * 24)) - 1 }, (_, i) => {
-                    const d = new Date(tempFrom);
-                    d.setDate(d.getDate() + i + 1);
-                    return d;
-                  }) : [],
-              }}
-              modifiersStyles={{
-                range_start: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
-                range_end: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
-                in_range: { backgroundColor: "hsl(var(--primary) / 0.1)", borderRadius: "0" },
-              }}
-              locale={ko}
-              className={cn("p-3 pointer-events-auto")}
-            />
+
+            {/* Scrollable multi-month calendar */}
+            <div
+              ref={scrollRef}
+              className="h-[320px] overflow-y-auto"
+            >
+              {months.map((month, idx) => (
+                <div key={idx} data-month-block>
+                  <Calendar
+                    mode="single"
+                    month={month}
+                    selected={selectingStep === "from" ? tempFrom : tempTo}
+                    onSelect={handleDaySelect}
+                    disabled={(date) => date > new Date()}
+                    disableNavigation
+                    modifiers={{
+                      range_start: tempFrom ? [tempFrom] : [],
+                      range_end: tempTo ? [tempTo] : [],
+                      in_range: tempFrom && tempTo
+                        ? Array.from(
+                            { length: Math.max(0, Math.ceil((tempTo.getTime() - tempFrom.getTime()) / (1000 * 60 * 60 * 24)) - 1) },
+                            (_, i) => {
+                              const d = new Date(tempFrom);
+                              d.setDate(d.getDate() + i + 1);
+                              return d;
+                            }
+                          )
+                        : [],
+                    }}
+                    modifiersStyles={{
+                      range_start: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
+                      range_end: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "50%" },
+                      in_range: { backgroundColor: "hsl(var(--primary) / 0.1)", borderRadius: "0" },
+                    }}
+                    locale={ko}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </div>
+              ))}
+            </div>
+
             <div className="p-3 border-t flex justify-end gap-2">
               <Button
                 variant="ghost"
