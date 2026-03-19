@@ -104,7 +104,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
       id: "sns" as const,
       icon: MessageCircle,
       label: "SNS 게시물",
-      description: "X(트위터), 블로그 등 SNS 글을 분석해드려요",
+      description: "X(트위터), 인스타, 틱톡 등 SNS 글을 분석해드려요",
       iconBg: "bg-accent/10",
       iconColor: "text-accent",
     },
@@ -128,7 +128,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
         ];
       case "sns":
         return [
-          "X(트위터), 네이버 블로그, 티스토리 등의 URL을 지원합니다",
+          "X(트위터), 인스타그램, 틱톡 등의 URL을 지원합니다",
           "공개 게시물만 분석이 가능합니다",
           "투자 관련 의견이나 분석 글에 적합합니다",
         ];
