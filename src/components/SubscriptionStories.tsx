@@ -17,7 +17,7 @@ type Subscription = {
   last_fetched_at: string | null;
 };
 
-const SubscriptionStories = () => {
+const SubscriptionStories = ({ onFilterByDomain }: { onFilterByDomain?: (domain: string) => void }) => {
   const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -224,21 +224,30 @@ const SubscriptionStories = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground truncate">{selectedSub.source_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{selectedSub.source_domain}</p>
+                  <a
+                    href={selectedSub.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline truncate block"
+                  >
+                    {selectedSub.source_domain}
+                  </a>
                 </div>
                 <button onClick={() => setSelectedSub(null)} className="text-muted-foreground hover:text-foreground">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <a
-                href={selectedSub.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors mb-3"
+              <Button
+                size="sm"
+                className="w-full mb-3"
+                onClick={() => {
+                  if (onFilterByDomain) onFilterByDomain(selectedSub.source_domain || "");
+                  setSelectedSub(null);
+                }}
               >
-                사이트 방문
-              </a>
+                이 채널 뉴스만 보기
+              </Button>
 
               <Button
                 variant="outline"

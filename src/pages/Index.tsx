@@ -42,6 +42,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [domainFilter, setDomainFilter] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
@@ -82,9 +83,12 @@ const Index = () => {
   const filteredInsights = useMemo(() => {
     let result = insights;
 
-    // Filter favorites
     if (showFavorites) {
       result = result.filter((ins) => (ins as any).is_favorited);
+    }
+
+    if (domainFilter) {
+      result = result.filter((ins) => ins.source_domain === domainFilter);
     }
 
     if (!searchQuery.trim()) return result;
@@ -99,7 +103,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites]);
+  }, [insights, searchQuery, showFavorites, domainFilter]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
@@ -185,10 +189,17 @@ const Index = () => {
       </div>
 
       {/* Story-style subscriptions */}
-      <SubscriptionStories />
+      <SubscriptionStories onFilterByDomain={(domain) => { setDomainFilter(domain); setSearchQuery(""); }} />
 
       {/* Search */}
-      <div className="max-w-2xl mx-auto px-4 pt-3 pb-2">
+      <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 space-y-2">
+        {domainFilter && (
+          <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 rounded-lg px-3 py-2">
+            <span className="font-medium">{domainFilter}</span>
+            <span className="text-muted-foreground">필터 적용 중</span>
+            <button onClick={() => setDomainFilter(null)} className="ml-auto text-muted-foreground hover:text-foreground text-xs underline">해제</button>
+          </div>
+        )}
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
