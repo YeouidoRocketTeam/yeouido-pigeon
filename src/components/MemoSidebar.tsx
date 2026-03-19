@@ -15,6 +15,9 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [lastEditedAt, setLastEditedAt] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [initialMemo, setInitialMemo] = useState(insight.memo || "");
 
   useEffect(() => {
     let cancelled = false;
