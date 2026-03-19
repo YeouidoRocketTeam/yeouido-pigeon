@@ -125,7 +125,7 @@ const GROUPS = [
   },
 ];
 
-const ITEM_POINTS = [30, 25, 20, 15, 5];
+const ITEM_POINTS = [30, 25, 20, 15, 10];
 
 const getScoreColor = (score: number): string => {
   if (score >= 70) return "text-accent";
