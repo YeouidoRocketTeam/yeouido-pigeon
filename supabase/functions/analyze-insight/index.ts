@@ -24,7 +24,7 @@ function computeCriterionScore(flags: boolean[]): number {
   for (let i = 0; i < 5; i++) {
     if (flags[i]) deduction += ITEM_POINTS[i];
   }
-  return Math.max(5, 100 - deduction);
+  return Math.max(0, 100 - deduction);
 }
 
 function computeFinalScore(details: Record<string, { flags: boolean[]; score: number }>): number {
