@@ -16,7 +16,6 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
   const [saved, setSaved] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Fetch latest memo from DB when insight changes
   useEffect(() => {
     let cancelled = false;
     const fetchMemo = async () => {
@@ -47,59 +46,72 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
     }
   }, [memo, insight.id, onUpdated]);
 
-  const formattedDate = new Date(insight.created_at).toLocaleDateString("ko-KR", {
+  const createdDate = new Date(insight.created_at);
+  const isToday = (() => {
+    const now = new Date();
+    return createdDate.getFullYear() === now.getFullYear() &&
+      createdDate.getMonth() === now.getMonth() &&
+      createdDate.getDate() === now.getDate();
+  })();
+
+  const formattedDate = `${isToday ? "오늘, " : ""}${createdDate.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  });
+  })}`;
+
+  const LINE_HEIGHT = "2rem";
 
   return (
     <div className="bg-card rounded-2xl shadow-lg overflow-hidden border border-border">
-      {/* Header */}
-      <div className="bg-[hsl(var(--brand))] px-5 py-4 flex items-center justify-between rounded-t-2xl">
+      {/* Header - gradient brand bar */}
+      <div
+        className="px-5 py-4 flex items-center justify-between"
+        style={{
+          background: "linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-light)) 100%)",
+        }}
+      >
         <h3 className="text-base font-bold text-primary-foreground tracking-wide">Memo</h3>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 rounded-md text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+          className="p-1.5 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+          aria-label={isCollapsed ? "메모 펼치기" : "메모 접기"}
         >
-          {isCollapsed ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronUp className="h-4 w-4" />
-          )}
+          {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </button>
       </div>
 
       {!isCollapsed && (
-        <div className="p-5 space-y-4">
+        <div className="px-5 pt-5 pb-4 space-y-0">
           {/* Date row */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</span>
+          <div className="flex items-center gap-3 pb-4">
+            <span className="text-xs font-semibold text-muted-foreground tracking-wider shrink-0">Date</span>
             <div className="h-5 w-px bg-border" />
             <span className="text-sm font-semibold text-foreground">{formattedDate}</span>
-            <CalendarDays className="h-4 w-4 text-muted-foreground ml-auto" />
+            <CalendarDays className="h-4 w-4 text-muted-foreground ml-auto shrink-0" />
           </div>
 
-          {/* Divider */}
+          {/* Separator */}
           <div className="border-t border-border" />
 
-          {/* Textarea with lines */}
-          <div className="relative">
+          {/* Lined textarea area */}
+          <div className="relative pt-4">
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               placeholder="투자 아이디어를 자유롭게 작성하세요"
-              className="w-full h-48 bg-transparent border-none outline-none resize-none text-sm text-foreground placeholder:text-muted-foreground/60 leading-[2rem]"
+              rows={8}
+              className="w-full bg-transparent border-none outline-none resize-none text-sm text-foreground placeholder:text-muted-foreground/50 p-0"
               style={{
+                lineHeight: LINE_HEIGHT,
                 backgroundImage:
-                  "repeating-linear-gradient(transparent, transparent 1.9375rem, hsl(var(--border)) 1.9375rem, hsl(var(--border)) 2rem)",
-                backgroundPositionY: "-1px",
+                  `repeating-linear-gradient(transparent, transparent calc(${LINE_HEIGHT} - 1px), hsl(var(--border) / 0.6) calc(${LINE_HEIGHT} - 1px), hsl(var(--border) / 0.6) ${LINE_HEIGHT})`,
               }}
             />
           </div>
 
-          {/* Save button */}
-          <div className="flex items-center justify-end gap-2">
+          {/* Save button row */}
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
             {saved && (
               <span className="text-xs text-accent flex items-center gap-1">
@@ -109,7 +121,8 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
             <button
               onClick={saveMemo}
               disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[hsl(var(--brand))] text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-50 text-primary-foreground hover:opacity-90"
+              style={{ background: "hsl(var(--brand))" }}
             >
               <Save className="h-3.5 w-3.5" />
               저장
