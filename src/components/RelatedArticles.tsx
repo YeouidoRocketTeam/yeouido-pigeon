@@ -31,7 +31,7 @@ const RelatedArticles = ({ currentInsight, onSelectInsight }: RelatedArticlesPro
         .from("insights")
         .select("*")
         .neq("id", currentInsight.id)
-        .eq("status", "done")
+        .eq("status", "completed")
         .order("created_at", { ascending: false })
         .limit(50);
 
