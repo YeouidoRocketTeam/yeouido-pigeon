@@ -665,67 +665,53 @@ Respond ONLY with the tool call.`,
       reliabilityDetails[key] = { flags, score };
     }
 
-    // ── RAG-based cross-verification via Naver News API + vector store ──
-    try {
-      // Get the user_id from the insight record
-      const { data: insightRecord } = await supabase
-        .from("insights")
-        .select("user_id")
-        .eq("id", insightId)
-        .single();
+    // ── Run cross-verification, stock enrichment, and detail summary in PARALLEL ──
+    const insightRecordPromise = supabase
+      .from("insights")
+      .select("user_id")
+      .eq("id", insightId)
+      .single();
 
-      const crossVerifyResponse = await fetch(
-        `${supabaseUrl}/functions/v1/cross-verify`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${supabaseServiceKey}`,
-          },
-          body: JSON.stringify({
-            insightId,
-            title: analysis.ai_title || pageTitle,
-            summary: analysis.ai_summary || "",
-            content: pageContent.slice(0, 2000),
-            userId: insightRecord?.user_id || null,
-            themes: analysis.themes || [],
-            stocks: analysis.stocks || [],
-          }),
-        }
-      );
+    // Prepare stock enrichment
+    const existingNames = new Set((analysis.stocks || []).map((s: any) => s.name));
+    const themes = analysis.themes || [];
+    const keywords = (analysis.ai_keywords || "").split("\n").filter(Boolean);
 
-      if (crossVerifyResponse.ok) {
-        const cvResult = await crossVerifyResponse.json();
-        if (cvResult.success && Array.isArray(cvResult.flags)) {
-          const cvFlags = cvResult.flags.map((f: any) => Boolean(f));
-          while (cvFlags.length < 5) cvFlags.push(true);
-          reliabilityDetails.cross_verification = {
-            flags: cvFlags.slice(0, 5),
-            score: computeCriterionScore(cvFlags.slice(0, 5)),
-          };
-          console.log(
-            `Cross-verification RAG: naver=${cvResult.naver_count}, similar=${cvResult.similar_count}, score=${reliabilityDetails.cross_verification.score}`
-          );
+    // Launch all three tasks in parallel
+    const [crossVerifyResult, enrichResult, detailResult] = await Promise.allSettled([
+      // Task 1: Cross-verification
+      (async () => {
+        const { data: insightRecord } = await insightRecordPromise;
+        const crossVerifyResponse = await fetch(
+          `${supabaseUrl}/functions/v1/cross-verify`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              insightId,
+              title: analysis.ai_title || pageTitle,
+              summary: analysis.ai_summary || "",
+              content: pageContent.slice(0, 2000),
+              userId: insightRecord?.user_id || null,
+              themes: analysis.themes || [],
+              stocks: analysis.stocks || [],
+            }),
+          }
+        );
+        if (crossVerifyResponse.ok) {
+          return await crossVerifyResponse.json();
         }
-      } else {
         console.error("Cross-verify call failed:", crossVerifyResponse.status);
-      }
-    } catch (cvError) {
-      console.error("Cross-verification error (fallback to AI-only):", cvError);
-    }
+        return null;
+      })(),
 
-    const finalScore = computeFinalScore(reliabilityDetails);
-
-    // ── Theme/keyword-based related stock enrichment ──
-    let enrichedStocks = analysis.stocks || [];
-    try {
-      const existingNames = new Set((analysis.stocks || []).map((s: any) => s.name));
-      const themes = analysis.themes || [];
-      const keywords = (analysis.ai_keywords || "").split("\n").filter(Boolean);
-
-      if (themes.length > 0 || keywords.length > 0) {
+      // Task 2: Stock enrichment
+      (async () => {
+        if (themes.length === 0 && keywords.length === 0) return null;
         console.log("Starting stock enrichment with themes:", themes, "keywords:", keywords);
-
         const enrichResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -775,60 +761,76 @@ Respond ONLY with the tool call.`,
             tool_choice: { type: "function", function: { name: "suggest_related_stocks" } },
           }),
         });
-
         if (enrichResponse.ok) {
           const enrichData = await enrichResponse.json();
           const enrichToolCall = enrichData.choices?.[0]?.message?.tool_calls?.[0];
           if (enrichToolCall) {
-            const enrichResult = JSON.parse(enrichToolCall.function.arguments);
-            const newStocks = (enrichResult.related_stocks || []).filter(
-              (s: any) => s.name && s.code && !existingNames.has(s.name)
-            );
-            if (newStocks.length > 0) {
-              enrichedStocks = [...enrichedStocks, ...newStocks];
-              console.log(`Stock enrichment: added ${newStocks.length} related stocks:`, newStocks.map((s: any) => s.name));
-            }
+            return JSON.parse(enrichToolCall.function.arguments);
           }
         } else {
-          const errText = await enrichResponse.text();
-          console.error("Stock enrichment failed:", enrichResponse.status, errText);
+          console.error("Stock enrichment failed:", enrichResponse.status);
         }
-      }
-    } catch (enrichErr) {
-      console.error("Stock enrichment error (fallback to original):", enrichErr);
+        return null;
+      })(),
+
+      // Task 3: Detail summary
+      (async () => {
+        const detailResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-lite",
+            messages: [
+              {
+                role: "system",
+                content: "You are a Korean investment content analyst. Write a comprehensive, in-depth analysis of the given investment content in Korean. The analysis should be 4-6 detailed paragraphs, each 150-250 characters long. Cover: key facts and context, market implications, risks and opportunities, and forward-looking outlook. Write in a professional but accessible tone. Output paragraphs separated by newlines. No numbers, no bullets, no headers.",
+              },
+              {
+                role: "user",
+                content: `다음 투자 콘텐츠의 상세 분석을 작성해줘. 핵심 사실, 시장 영향, 리스크와 기회, 전망을 포함하여 4~6개 문단으로 깊이 있게 분석해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 5000)}`,
+              },
+            ],
+          }),
+        });
+        if (detailResponse.ok) {
+          const detailData = await detailResponse.json();
+          return detailData.choices?.[0]?.message?.content?.trim() || "";
+        }
+        return "";
+      })(),
+    ]);
+
+    // Process cross-verification result
+    if (crossVerifyResult.status === "fulfilled" && crossVerifyResult.value?.success) {
+      const cvResult = crossVerifyResult.value;
+      const cvFlags = cvResult.flags.map((f: any) => Boolean(f));
+      while (cvFlags.length < 5) cvFlags.push(true);
+      reliabilityDetails.cross_verification = {
+        flags: cvFlags.slice(0, 5),
+        score: computeCriterionScore(cvFlags.slice(0, 5)),
+      };
+      console.log(
+        `Cross-verification RAG: naver=${cvResult.naver_count}, similar=${cvResult.similar_count}, score=${reliabilityDetails.cross_verification.score}`
+      );
     }
 
-    // ── LLM call: generate detailed summary (full paragraphs) ──
-    let aiSummaryDetail = "";
-    try {
-      const detailResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-lite",
-          messages: [
-            {
-              role: "system",
-              content: "You are a Korean investment content analyst. Write a comprehensive, in-depth analysis of the given investment content in Korean. The analysis should be 4-6 detailed paragraphs, each 150-250 characters long. Cover: key facts and context, market implications, risks and opportunities, and forward-looking outlook. Write in a professional but accessible tone. Output paragraphs separated by newlines. No numbers, no bullets, no headers.",
-            },
-            {
-              role: "user",
-              content: `다음 투자 콘텐츠의 상세 분석을 작성해줘. 핵심 사실, 시장 영향, 리스크와 기회, 전망을 포함하여 4~6개 문단으로 깊이 있게 분석해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 5000)}`,
-            },
-          ],
-        }),
-      });
-      if (detailResponse.ok) {
-        const detailData = await detailResponse.json();
-        aiSummaryDetail = detailData.choices?.[0]?.message?.content?.trim() || "";
-        console.log("Generated detailed summary:", aiSummaryDetail);
+    // Process stock enrichment result
+    let enrichedStocks = analysis.stocks || [];
+    if (enrichResult.status === "fulfilled" && enrichResult.value) {
+      const newStocks = (enrichResult.value.related_stocks || []).filter(
+        (s: any) => s.name && s.code && !existingNames.has(s.name)
+      );
+      if (newStocks.length > 0) {
+        enrichedStocks = [...enrichedStocks, ...newStocks];
+        console.log(`Stock enrichment: added ${newStocks.length} related stocks:`, newStocks.map((s: any) => s.name));
       }
-    } catch (detailErr) {
-      console.error("Detail summary LLM call failed:", detailErr);
     }
+
+    // Process detail summary result
+    const aiSummaryDetail = detailResult.status === "fulfilled" ? (detailResult.value as string) : "";
 
     // Preserve original source_domain if already set (e.g., from fetch-subscription)
     const { data: currentInsight } = await supabase.from("insights").select("source_domain").eq("id", insightId).single();
@@ -863,6 +865,23 @@ Respond ONLY with the tool call.`,
   } catch (error) {
     console.error("analyze-insight error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+    // Update insight status to error so it doesn't stay stuck in "processing"
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const { insightId } = await req.clone().json().catch(() => ({ insightId: null }));
+      if (insightId) {
+        await supabase.from("insights").update({
+          status: "error",
+          error_message: `분석 중 오류가 발생했습니다: ${errorMessage}`,
+        }).eq("id", insightId);
+      }
+    } catch (dbErr) {
+      console.error("Failed to update error status:", dbErr);
+    }
+
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
