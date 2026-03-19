@@ -80,7 +80,7 @@ const Index = () => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchInsights]);
 
-  // Filter by search query
+  // Filter by search query and period
   const filteredInsights = useMemo(() => {
     let result = insights;
 
@@ -90,6 +90,27 @@ const Index = () => {
 
     if (domainFilter) {
       result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
+    }
+
+    // Period filter
+    if (periodFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let startDate: Date;
+
+      if (periodFilter === "today") {
+        startDate = today;
+      } else if (periodFilter === "week") {
+        startDate = new Date(today);
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (periodFilter === "month") {
+        startDate = new Date(today);
+        startDate.setMonth(startDate.getMonth() - 1);
+      } else {
+        startDate = new Date(0);
+      }
+
+      result = result.filter((ins) => new Date(ins.created_at) >= startDate);
     }
 
     if (!searchQuery.trim()) return result;
@@ -104,7 +125,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites, domainFilter]);
+  }, [insights, searchQuery, showFavorites, domainFilter, periodFilter]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
