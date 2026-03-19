@@ -46,17 +46,40 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
 
   const saveMemo = useCallback(async () => {
     setSaving(true);
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("insights")
-      .update({ memo })
+      .update({ memo, updated_at: now })
       .eq("id", insight.id);
     setSaving(false);
     if (!error) {
       setSaved(true);
+      setLastEditedAt(now);
+      setInitialMemo(memo);
+      setIsDirty(false);
       setTimeout(() => setSaved(false), 1500);
       onUpdated?.();
     }
   }, [memo, insight.id, onUpdated]);
+
+  const handleMemoChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setMemo(val);
+    setIsDirty(val !== initialMemo);
+  };
+
+  const formatEditedDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const isEditToday = d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+    const datePart = isEditToday
+      ? `오늘 ${d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`
+      : d.toLocaleDateString("ko-KR", { month: "long", day: "numeric" }) +
+        ` ${d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`;
+    return `${datePart}에 수정함`;
+  };
 
   const createdDate = new Date(insight.created_at);
   const isToday = (() => {
