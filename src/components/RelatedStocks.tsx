@@ -176,7 +176,8 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
         {/* Stock list */}
         <div className="divide-y divide-border">
           {stocks.map((stock) => {
-            const priceData = prices[stock.name];
+            const priceData = prices[stock.code];
+            const displayName = priceData?.name || stock.name;
             const badge = getRelevanceBadge(stock.reason);
             const isPositive = priceData && priceData.changePercent > 0;
             const isNegative = priceData && priceData.changePercent < 0;
