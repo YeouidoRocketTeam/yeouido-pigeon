@@ -44,7 +44,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
       if (!error && data?.prices) {
         const priceMap: Record<string, StockPrice> = {};
         for (const p of data.prices) {
-          priceMap[p.name] = p;
+          priceMap[p.code] = p;
         }
         setPrices(priceMap);
         setLastUpdated(new Date());
