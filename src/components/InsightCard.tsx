@@ -32,7 +32,7 @@ interface InsightCardProps {
   onDeleted?: () => void;
 }
 
-const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
+const InsightCard = forwardRef<HTMLDivElement, InsightCardProps>(({ insight, index, onClick, onDeleted }, ref) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const rawStocks = (insight.stocks as any[]) || [];
