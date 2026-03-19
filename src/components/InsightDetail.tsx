@@ -221,16 +221,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
             )}
 
             {/* Related Articles */}
-            <RelatedArticles
-              currentInsight={insight}
-              onSelectInsight={(selected) => {
-                // Navigate to the selected insight by going back and re-selecting
-                onBack();
-                setTimeout(() => {
-                  window.dispatchEvent(new CustomEvent("select-insight", { detail: selected }));
-                }, 100);
-              }}
-            />
+            <RelatedArticles currentInsight={insight} />
           </div>
 
           {/* Memo - right side on desktop */}
