@@ -88,7 +88,7 @@ const Index = () => {
     }
 
     if (domainFilter) {
-      result = result.filter((ins) => ins.source_domain === domainFilter);
+      result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
     }
 
     if (!searchQuery.trim()) return result;
