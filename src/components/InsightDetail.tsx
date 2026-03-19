@@ -10,6 +10,7 @@ import MoveToProject from "@/components/MoveToProject";
 import InvestmentSentiment from "@/components/InvestmentSentiment";
 import ReliabilityScore from "@/components/ReliabilityScore";
 import AddInsightDialog from "@/components/AddInsightDialog";
+import RelatedStocks from "@/components/RelatedStocks";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
