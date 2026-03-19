@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Link2, Youtube } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const WelcomeDialog = () => {
+const WelcomeDialog = forwardRef<HTMLDivElement>((_, ref) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -65,6 +65,7 @@ const WelcomeDialog = () => {
       </DialogContent>
     </Dialog>
   );
-};
+});
+WelcomeDialog.displayName = "WelcomeDialog";
 
 export default WelcomeDialog;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, Globe, Trash2, Star } from "lucide-react";
 import MoveToProject from "@/components/MoveToProject";
@@ -32,7 +32,7 @@ interface InsightCardProps {
   onDeleted?: () => void;
 }
 
-const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) => {
+const InsightCard = forwardRef<HTMLDivElement, InsightCardProps>(({ insight, index, onClick, onDeleted }, ref) => {
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const rawStocks = (insight.stocks as any[]) || [];
@@ -187,6 +187,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
       </div>
     </motion.div>
   );
-};
+});
+InsightCard.displayName = "InsightCard";
 
 export default InsightCard;
