@@ -227,6 +227,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                       {stock.name}
                     </a>
                   ))}
+                </div>
               </div>
             )}
           </div>
