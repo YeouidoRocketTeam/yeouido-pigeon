@@ -42,6 +42,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [domainFilter, setDomainFilter] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);

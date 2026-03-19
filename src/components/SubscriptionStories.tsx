@@ -17,7 +17,7 @@ type Subscription = {
   last_fetched_at: string | null;
 };
 
-const SubscriptionStories = () => {
+const SubscriptionStories = ({ onFilterByDomain }: { onFilterByDomain?: (domain: string) => void }) => {
   const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
