@@ -17,7 +17,7 @@ const WEIGHTS = {
   cross_verification: 0.027,
 };
 
-const ITEM_POINTS = [30, 25, 20, 15, 5];
+const ITEM_POINTS = [30, 25, 20, 15, 10];
 
 function computeCriterionScore(flags: boolean[]): number {
   let deduction = 0;
