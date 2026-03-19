@@ -143,24 +143,14 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
         {/* Summary */}
         {insight.ai_summary && (
-          <div className="mb-8 rounded-xl border bg-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Globe className="w-4 h-4 text-primary" />
-                </div>
-                <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
+          <div className="mb-4 rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-primary" />
               </div>
-              <button
-                onClick={() => setSummaryExpanded(!summaryExpanded)}
-                className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-              >
-                상세보기
-                {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              </button>
+              <h2 className="text-sm font-semibold text-foreground">AI 핵심 요약</h2>
             </div>
 
-            {/* Default view: ai_summary (medium-length bullet points) */}
             <ol className="space-y-3">
               {insight.ai_summary.split("\n").filter((s) => s.trim()).map((line, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -172,26 +162,54 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               ))}
             </ol>
 
-            {/* Expanded: detailed AI summary */}
-            <AnimatePresence>
-              {summaryExpanded && (insight as any).ai_summary_detail && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {((insight as any).ai_summary_detail as string).split("\n").map((s: string) => s.trim()).filter(Boolean).join(" ")}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Toggle button */}
+            {(insight as any).ai_summary_detail && (
+              <button
+                onClick={() => setSummaryExpanded(!summaryExpanded)}
+                className="mt-4 w-full text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 py-2 rounded-lg hover:bg-primary/5"
+              >
+                {summaryExpanded ? "접기" : "상세 분석 보기"}
+                {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+            )}
           </div>
         )}
+
+        {/* Detailed Analysis - separate card */}
+        <AnimatePresence>
+          {summaryExpanded && (insight as any).ai_summary_detail && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden mb-8"
+            >
+              <div className="rounded-xl border bg-card p-5">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-primary" />
+                  </div>
+                  <h2 className="text-sm font-semibold text-foreground">상세 분석</h2>
+                </div>
+                <div className="space-y-4">
+                  {((insight as any).ai_summary_detail as string)
+                    .split("\n")
+                    .map((s: string) => s.trim())
+                    .filter(Boolean)
+                    .map((paragraph: string, i: number) => (
+                      <p key={i} className="text-sm text-foreground/90 leading-relaxed">
+                        {paragraph}
+                      </p>
+                    ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Ensure spacing when not expanded */}
+        {!summaryExpanded && <div className="mb-8" />}
 
         {/* Sentiment + Themes + Stocks with Memo side-by-side */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
