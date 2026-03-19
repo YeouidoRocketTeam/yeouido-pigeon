@@ -65,7 +65,6 @@ const WelcomeDialog = () => {
       </DialogContent>
     </Dialog>
   );
-});
-WelcomeDialog.displayName = "WelcomeDialog";
+};
 
 export default WelcomeDialog;
