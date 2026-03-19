@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus } from "lucide-react";
+import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ interface AddInsightDialogProps {
   onExternalOpenChange?: (open: boolean) => void;
 }
 
-type AnalysisType = "news" | "screenshot" | "youtube" | null;
+type AnalysisType = "news" | "screenshot" | "youtube" | "sns" | null;
 
 const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange }: AddInsightDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
@@ -100,11 +100,20 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
       iconBg: "bg-destructive/10",
       iconColor: "text-destructive",
     },
+    {
+      id: "sns" as const,
+      icon: MessageCircle,
+      label: "SNS 게시물",
+      description: "X(트위터), 블로그 등 SNS 글을 분석해드려요",
+      iconBg: "bg-accent/10",
+      iconColor: "text-accent",
+    },
   ];
 
   const getPlaceholder = () => {
     switch (selectedType) {
       case "youtube": return "https://www.youtube.com/watch?v=...";
+      case "sns": return "https://x.com/user/status/...";
       default: return "https://news.einfomax.co.kr/...";
     }
   };
@@ -116,6 +125,12 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
           "유튜브 영상 URL을 붙여넣으면 자동 분석됩니다",
           "투자 관련 채널의 영상을 지원합니다",
           "비공개 영상은 분석이 제한될 수 있습니다",
+        ];
+      case "sns":
+        return [
+          "X(트위터), 네이버 블로그, 티스토리 등의 URL을 지원합니다",
+          "공개 게시물만 분석이 가능합니다",
+          "투자 관련 의견이나 분석 글에 적합합니다",
         ];
       default:
         return [
@@ -130,6 +145,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
     switch (selectedType) {
       case "news": return "뉴스 기사";
       case "youtube": return "유튜브 영상";
+      case "sns": return "SNS 게시물";
       default: return "";
     }
   };
@@ -294,7 +310,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
                         ) : (
                           <>
                             <Zap className="h-5 w-5 mr-2" />
-                            {selectedType === "youtube" ? "영상 분석하기" : "기사 분석하기"}
+                            {selectedType === "youtube" ? "영상 분석하기" : selectedType === "sns" ? "게시물 분석하기" : "기사 분석하기"}
                           </>
                         )}
                       </Button>
