@@ -206,6 +206,18 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           <span className="text-xs text-muted-foreground">ROC 가중치 기반 6항목 평가</span>
         </div>
 
+        {details && (() => {
+          const belowCount = Object.values(details).filter((d) => (d as CriterionDetail).score < 40).length;
+          return belowCount >= 4 ? (
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <p className="text-xs text-destructive font-medium leading-relaxed">
+                6개 신뢰 지표 중 {belowCount}개 항목에서 기준치(40점) 미달이 확인되어, 신뢰 불가로 의사결정에 주의하시기 바랍니다.
+              </p>
+            </div>
+          ) : null;
+        })()}
+
       </div>
 
       {/* Info Modal */}
