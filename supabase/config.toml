@@ -4,5 +4,8 @@ project_id = "nsiiqmqgtnjbywgatnec"
 verify_jwt = false
 
 
+[functions.cross-verify]
+verify_jwt = false
+
 [functions.fetch-subscription]
 verify_jwt = false
