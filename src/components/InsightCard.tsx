@@ -187,6 +187,7 @@ const InsightCard = forwardRef<HTMLDivElement, InsightCardProps>(({ insight, ind
       </div>
     </motion.div>
   );
-};
+});
+InsightCard.displayName = "InsightCard";
 
 export default InsightCard;
