@@ -46,6 +46,7 @@ const Index = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showMemos, setShowMemos] = useState(false);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
 
   const fetchInsights = useCallback(async () => {
@@ -88,6 +89,10 @@ const Index = () => {
       result = result.filter((ins) => (ins as any).is_favorited);
     }
 
+    if (showMemos) {
+      result = result.filter((ins) => ins.memo && ins.memo.trim().length > 0);
+    }
+
     if (domainFilter) {
       result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
     }
@@ -116,7 +121,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites, domainFilter, dateRange]);
+  }, [insights, searchQuery, showFavorites, showMemos, domainFilter, dateRange]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
@@ -160,11 +165,13 @@ const Index = () => {
       {/* Project Sidebar */}
       <ProjectSidebar
         selectedProjectId={selectedProjectId}
-        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) setShowFavorites(false); }}
+        onSelectProject={(id) => { setSelectedProjectId(id); if (id !== null) { setShowFavorites(false); setShowMemos(false); } }}
         isOpen={projectSidebarOpen}
         onClose={() => setProjectSidebarOpen(false)}
         showFavorites={showFavorites}
-        onToggleFavorites={(show) => { setShowFavorites(show); if (show) setSelectedProjectId(null); }}
+        onToggleFavorites={(show) => { setShowFavorites(show); if (show) { setSelectedProjectId(null); setShowMemos(false); } }}
+        showMemos={showMemos}
+        onToggleMemos={(show) => { setShowMemos(show); if (show) { setSelectedProjectId(null); setShowFavorites(false); } }}
       />
 
       {/* Header */}
