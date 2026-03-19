@@ -192,7 +192,14 @@ const Index = () => {
       <SubscriptionStories onFilterByDomain={(domain) => { setDomainFilter(domain); setSearchQuery(""); }} />
 
       {/* Search */}
-      <div className="max-w-2xl mx-auto px-4 pt-3 pb-2">
+      <div className="max-w-2xl mx-auto px-4 pt-3 pb-2 space-y-2">
+        {domainFilter && (
+          <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 rounded-lg px-3 py-2">
+            <span className="font-medium">{domainFilter}</span>
+            <span className="text-muted-foreground">필터 적용 중</span>
+            <button onClick={() => setDomainFilter(null)} className="ml-auto text-muted-foreground hover:text-foreground text-xs underline">해제</button>
+          </div>
+        )}
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
