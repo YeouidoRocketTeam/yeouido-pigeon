@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,17 +6,19 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import AnalyzingOverlay from "@/components/AnalyzingOverlay";
 
 interface AddInsightDialogProps {
   onAdded: () => void;
   projectId?: string | null;
   externalOpen?: boolean;
   onExternalOpenChange?: (open: boolean) => void;
+  onNavigateToInsight?: (insight: any) => void;
 }
 
 type AnalysisType = "news" | "screenshot" | "youtube" | "sns" | null;
 
-const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange }: AddInsightDialogProps) => {
+const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChange, onNavigateToInsight }: AddInsightDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
   const setIsOpen = (v: boolean) => {
@@ -26,8 +28,17 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
   const [selectedType, setSelectedType] = useState<AnalysisType>(null);
   const [url, setUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -35,6 +46,34 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
       setSelectedType(null);
       setUrl("");
     }, 300);
+  };
+
+  const pollForCompletion = (insightId: string) => {
+    setIsAnalyzing(true);
+    pollingRef.current = setInterval(async () => {
+      const { data } = await supabase
+        .from("insights")
+        .select("*")
+        .eq("id", insightId)
+        .single();
+
+      if (data && data.status !== "processing") {
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        pollingRef.current = null;
+        setIsAnalyzing(false);
+        onAdded();
+
+        if (data.status === "done" || data.status === "completed") {
+          onNavigateToInsight?.(data);
+        } else if (data.status === "error") {
+          toast({
+            title: "분석 실패",
+            description: data.error_message || "알 수 없는 오류가 발생했습니다.",
+            variant: "destructive",
+          });
+        }
+      }
+    }, 2000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,9 +103,10 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
 
       if (insertError) throw insertError;
 
-      toast({ title: "추가 완료", description: "AI가 분석 중입니다..." });
       handleClose();
-      onAdded();
+
+      // Start polling and show overlay
+      pollForCompletion(insight.id);
 
       supabase.functions.invoke("analyze-insight", {
         body: { insightId: insight.id, url: url.trim() },
