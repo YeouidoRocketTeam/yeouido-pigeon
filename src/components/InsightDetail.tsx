@@ -11,6 +11,7 @@ import InvestmentSentiment from "@/components/InvestmentSentiment";
 import ReliabilityScore from "@/components/ReliabilityScore";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import RelatedStocks from "@/components/RelatedStocks";
+import RelatedArticles from "@/components/RelatedArticles";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -218,6 +219,18 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
             {stocks.length > 0 && (
               <RelatedStocks stocks={stocks} />
             )}
+
+            {/* Related Articles */}
+            <RelatedArticles
+              currentInsight={insight}
+              onSelectInsight={(selected) => {
+                // Navigate to the selected insight by going back and re-selecting
+                onBack();
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("select-insight", { detail: selected }));
+                }, 100);
+              }}
+            />
           </div>
 
           {/* Memo - right side on desktop */}
