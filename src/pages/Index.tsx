@@ -46,6 +46,7 @@ const Index = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectSidebarOpen, setProjectSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
 
   const fetchInsights = useCallback(async () => {
     if (!user) return;
@@ -79,7 +80,7 @@ const Index = () => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchInsights]);
 
-  // Filter by search query
+  // Filter by search query and period
   const filteredInsights = useMemo(() => {
     let result = insights;
 
@@ -89,6 +90,27 @@ const Index = () => {
 
     if (domainFilter) {
       result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
+    }
+
+    // Period filter
+    if (periodFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let startDate: Date;
+
+      if (periodFilter === "today") {
+        startDate = today;
+      } else if (periodFilter === "week") {
+        startDate = new Date(today);
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (periodFilter === "month") {
+        startDate = new Date(today);
+        startDate.setMonth(startDate.getMonth() - 1);
+      } else {
+        startDate = new Date(0);
+      }
+
+      result = result.filter((ins) => new Date(ins.created_at) >= startDate);
     }
 
     if (!searchQuery.trim()) return result;
@@ -103,7 +125,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites, domainFilter]);
+  }, [insights, searchQuery, showFavorites, domainFilter, periodFilter]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
@@ -203,8 +225,32 @@ const Index = () => {
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
+      {/* Period Filter */}
+      <div className="max-w-2xl mx-auto px-4 pt-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          {[
+            { key: "all", label: "전체" },
+            { key: "today", label: "오늘" },
+            { key: "week", label: "이번 주" },
+            { key: "month", label: "이번 달" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setPeriodFilter(item.key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                periodFilter === item.key
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Content */}
-      <main className="max-w-2xl mx-auto px-4 py-6 pb-24">
+      <main className="max-w-2xl mx-auto px-4 py-4 pb-24">
         {loading ? (
           <div className="space-y-4">
             {[0, 1, 2].map((i) => (
