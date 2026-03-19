@@ -65,6 +65,7 @@ const WelcomeDialog = forwardRef<HTMLDivElement>((_, ref) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
+WelcomeDialog.displayName = "WelcomeDialog";
 
 export default WelcomeDialog;
