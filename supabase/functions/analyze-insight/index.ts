@@ -311,8 +311,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let parsedInsightId: string | null = null;
   try {
-    const { insightId, url } = await req.json();
+    const body = await req.json();
+    const { insightId, url } = body;
+    parsedInsightId = insightId;
 
     if (!insightId || !url) {
       return new Response(
@@ -750,6 +753,9 @@ Respond ONLY with the tool call.`,
     // Process detail summary result
     const aiSummaryDetail = detailResult.status === "fulfilled" ? (detailResult.value as string) : "";
 
+    // Compute final overall reliability score using weighted ROC method
+    const finalScore = computeFinalScore(reliabilityDetails);
+
     // Preserve original source_domain if already set (e.g., from fetch-subscription)
     const { data: currentInsight } = await supabase.from("insights").select("source_domain").eq("id", insightId).single();
     
@@ -786,15 +792,14 @@ Respond ONLY with the tool call.`,
 
     // Update insight status to error so it doesn't stay stuck in "processing"
     try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const { insightId } = await req.clone().json().catch(() => ({ insightId: null }));
-      if (insightId) {
+      if (parsedInsightId) {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
         await supabase.from("insights").update({
           status: "error",
           error_message: `분석 중 오류가 발생했습니다: ${errorMessage}`,
-        }).eq("id", insightId);
+        }).eq("id", parsedInsightId);
       }
     } catch (dbErr) {
       console.error("Failed to update error status:", dbErr);
