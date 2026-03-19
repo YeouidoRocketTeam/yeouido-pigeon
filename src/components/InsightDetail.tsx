@@ -10,6 +10,7 @@ import MoveToProject from "@/components/MoveToProject";
 import InvestmentSentiment from "@/components/InvestmentSentiment";
 import ReliabilityScore from "@/components/ReliabilityScore";
 import AddInsightDialog from "@/components/AddInsightDialog";
+import RelatedStocks from "@/components/RelatedStocks";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -215,20 +216,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
 
             {/* Stocks */}
             {stocks.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-foreground mb-3">관련 종목</h2>
-                <div className="flex flex-wrap gap-2">
-                  {stocks.map((stock) => (
-                    <a
-                      key={stock.name}
-                      href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
-                      className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors bg-accent/10 text-accent hover:bg-accent/20"
-                    >
-                      {stock.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
+              <RelatedStocks stocks={stocks} />
             )}
           </div>
 
