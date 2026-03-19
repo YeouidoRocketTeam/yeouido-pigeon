@@ -189,7 +189,7 @@ const Index = () => {
       </div>
 
       {/* Story-style subscriptions */}
-      <SubscriptionStories />
+      <SubscriptionStories onFilterByDomain={(domain) => { setDomainFilter(domain); setSearchQuery(""); }} />
 
       {/* Search */}
       <div className="max-w-2xl mx-auto px-4 pt-3 pb-2">
