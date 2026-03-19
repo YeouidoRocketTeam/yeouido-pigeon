@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus } from "lucide-react";
+import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
