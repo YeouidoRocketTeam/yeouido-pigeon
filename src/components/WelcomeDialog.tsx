@@ -22,7 +22,7 @@ const WelcomeDialog = () => {
       <DialogContent className="sm:max-w-sm mx-auto rounded-2xl p-8 text-center border-0 shadow-2xl [&>button]:hidden">
         <div className="flex flex-col items-center gap-5">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Bookmark className="h-8 w-8 text-primary" />
+            <ExternalLink className="h-8 w-8 text-primary" />
           </div>
 
           <div>
