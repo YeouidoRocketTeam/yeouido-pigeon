@@ -72,13 +72,13 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
   const getRelevanceBadge = (reason: string) => {
     if (!reason) return null;
     const lower = reason.toLowerCase();
-    if (lower.includes("높") || lower.includes("직접") || lower.includes("핵심") || lower.includes("주요")) {
-      return { label: "관련도 높음", className: "bg-accent/10 text-accent" };
+    if (lower.includes("높") || lower.includes("직접") || lower.includes("핵심") || lower.includes("주요") || lower.includes("1순위")) {
+      return { label: "관련도 높음", className: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" };
     }
-    if (lower.includes("낮") || lower.includes("간접")) {
-      return { label: "관련도 낮음", className: "bg-muted text-muted-foreground" };
+    if (lower.includes("낮") || lower.includes("간접") || lower.includes("매크로") || lower.includes("유사성") || lower.includes("3순위")) {
+      return { label: "관련도 낮음", className: "bg-muted text-muted-foreground border border-border" };
     }
-    return { label: "관련도 보통", className: "bg-primary/10 text-primary" };
+    return { label: "관련도 보통", className: "bg-amber-500/10 text-amber-600 border border-amber-500/20" };
   };
 
   const getMarketStatusText = (status: string) => {
