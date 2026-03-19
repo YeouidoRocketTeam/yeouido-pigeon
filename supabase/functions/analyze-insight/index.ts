@@ -311,8 +311,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let parsedInsightId: string | null = null;
   try {
-    const { insightId, url } = await req.json();
+    const body = await req.json();
+    const { insightId: _insightId, url } = body;
+    parsedInsightId = _insightId;
 
     if (!insightId || !url) {
       return new Response(
