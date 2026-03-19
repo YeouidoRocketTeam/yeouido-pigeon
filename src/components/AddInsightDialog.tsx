@@ -104,7 +104,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
       id: "sns" as const,
       icon: MessageCircle,
       label: "SNS 게시물",
-      description: "X(트위터), 블로그 등 SNS 글을 분석해드려요",
+      description: "X(트위터), 인스타, 틱톡 등 SNS 글을 분석해드려요",
       iconBg: "bg-accent/10",
       iconColor: "text-accent",
     },
