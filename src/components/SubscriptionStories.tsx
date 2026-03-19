@@ -68,9 +68,17 @@ const SubscriptionStories = ({ onFilterByDomain }: { onFilterByDomain?: (domain:
     }
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from("subscriptions").delete().eq("id", id);
+  const handleDelete = async (sub: Subscription) => {
+    // Delete insights fetched from this domain
+    if (sub.source_domain) {
+      await supabase
+        .from("insights")
+        .delete()
+        .ilike("source_domain", `%${sub.source_domain}%`);
+    }
+    await supabase.from("subscriptions").delete().eq("id", sub.id);
     setSelectedSub(null);
+    toast({ title: "구독 해제 완료", description: "관련 기사도 함께 삭제되었습니다." });
     fetchSubscriptions();
   };
 
@@ -253,7 +261,7 @@ const SubscriptionStories = ({ onFilterByDomain }: { onFilterByDomain?: (domain:
                 variant="outline"
                 size="sm"
                 className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                onClick={() => handleDelete(selectedSub.id)}
+                onClick={() => handleDelete(selectedSub)}
               >
                 <Trash2 className="h-4 w-4" />
                 구독 해제
