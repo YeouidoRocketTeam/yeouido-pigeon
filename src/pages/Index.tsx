@@ -8,6 +8,7 @@ import InsightCard from "@/components/InsightCard";
 import InsightDetail from "@/components/InsightDetail";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
+import MemoCard from "@/components/MemoCard";
 import SkeletonCard from "@/components/SkeletonCard";
 import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
