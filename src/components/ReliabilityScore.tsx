@@ -184,12 +184,16 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
               <Info className="h-4 w-4" />
             </button>
           </div>
-          <div className="flex items-baseline gap-0.5">
-            <span className={`text-3xl font-bold tabular-nums ${getScoreColor(normalizedScore)}`}>
-              {normalizedScore}
-            </span>
-            <span className="text-sm text-muted-foreground">/100</span>
-          </div>
+          {details && Object.values(details).filter((d) => (d as CriterionDetail).score < 40).length >= 4 ? (
+            <span className="text-3xl font-bold text-destructive">신뢰도X</span>
+          ) : (
+            <div className="flex items-baseline gap-0.5">
+              <span className={`text-3xl font-bold tabular-nums ${getScoreColor(normalizedScore)}`}>
+                {normalizedScore}
+              </span>
+              <span className="text-sm text-muted-foreground">/100</span>
+            </div>
+          )}
         </div>
 
         <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted mb-2">
