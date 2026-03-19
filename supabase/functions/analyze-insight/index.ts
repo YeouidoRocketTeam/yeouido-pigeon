@@ -764,7 +764,7 @@ Respond ONLY with the tool call.`,
       reliability_score: finalScore,
       reliability_details: reliabilityDetails,
       themes: analysis.themes,
-      stocks: enrichedStocks,
+      stocks: analysis.stocks || [],
       investment_sentiment: analysis.investment_sentiment,
       status: "completed",
     }).eq("id", insightId);

@@ -162,14 +162,9 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
                 key={stock.name}
                 href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
                 onClick={(e) => e.stopPropagation()}
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full tabular-nums transition-colors ${
-                  stock.reason
-                    ? "border border-primary/30 text-primary hover:bg-primary/10"
-                    : "border border-accent/30 text-accent hover:bg-accent/10"
-                }`}
-                title={stock.reason || undefined}
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-full tabular-nums transition-colors border border-accent/30 text-accent hover:bg-accent/10"
               >
-                {stock.name}{stock.reason && " ✦"}
+                {stock.name}
               </a>
             ))}
             {themes.slice(0, 2).map((theme: string) => (

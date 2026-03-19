@@ -222,23 +222,11 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                     <a
                       key={stock.name}
                       href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
-                      className={`text-sm font-medium px-4 py-1.5 rounded-full transition-colors ${
-                        stock.reason
-                          ? "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
-                          : "bg-accent/10 text-accent hover:bg-accent/20"
-                      }`}
-                      title={stock.reason || undefined}
+                      className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors bg-accent/10 text-accent hover:bg-accent/20"
                     >
                       {stock.name}
-                      {stock.reason && <span className="ml-1 text-xs opacity-70">✦</span>}
                     </a>
                   ))}
-                </div>
-                {stocks.some((s) => s.reason) && (
-                  <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
-                    <span className="text-primary">✦</span> AI가 테마 기반으로 추천한 연관 종목
-                  </p>
-                )}
               </div>
             )}
           </div>
