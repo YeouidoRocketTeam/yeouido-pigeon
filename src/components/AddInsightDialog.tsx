@@ -100,6 +100,14 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
       iconBg: "bg-destructive/10",
       iconColor: "text-destructive",
     },
+    {
+      id: "sns" as const,
+      icon: MessageCircle,
+      label: "SNS 게시물",
+      description: "X(트위터), 블로그 등 SNS 글을 분석해드려요",
+      iconBg: "bg-accent/10",
+      iconColor: "text-accent",
+    },
   ];
 
   const getPlaceholder = () => {
