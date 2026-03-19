@@ -89,6 +89,10 @@ const Index = () => {
       result = result.filter((ins) => (ins as any).is_favorited);
     }
 
+    if (showMemos) {
+      result = result.filter((ins) => ins.memo && ins.memo.trim().length > 0);
+    }
+
     if (domainFilter) {
       result = result.filter((ins) => ins.source_domain?.includes(domainFilter) || domainFilter.includes(ins.source_domain || ""));
     }
