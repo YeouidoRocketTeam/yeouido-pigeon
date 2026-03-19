@@ -243,7 +243,14 @@ const Index = () => {
               <p className="text-muted-foreground">"{searchQuery}"에 대한 결과가 없습니다</p>
             </div>
           ) : (
-            <EmptyState />
+            showMemos ? (
+              <div className="text-center py-16">
+                <StickyNote className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-muted-foreground">메모가 작성된 인사이트가 없습니다</p>
+              </div>
+            ) : (
+              <EmptyState />
+            )
           )
         ) : (
           <div className="space-y-8">
