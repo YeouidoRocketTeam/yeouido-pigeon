@@ -116,7 +116,7 @@ const Index = () => {
       const stocks = (ins.stocks as string[]) || [];
       return [...themes, ...stocks].some((t) => t.toLowerCase().includes(q));
     });
-  }, [insights, searchQuery, showFavorites, domainFilter, periodFilter]);
+  }, [insights, searchQuery, showFavorites, domainFilter, dateRange]);
 
   // Group by date
   const groupedInsights = useMemo(() => {
