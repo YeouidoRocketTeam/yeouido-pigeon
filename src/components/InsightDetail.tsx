@@ -246,7 +246,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           {/* Memo - right side on desktop */}
           <div className="hidden lg:block">
             <div className="sticky top-20">
-              <MemoSidebar insight={insight} />
+              <MemoSidebar insight={insight} onUpdated={onUpdated} />
             </div>
           </div>
         </div>
