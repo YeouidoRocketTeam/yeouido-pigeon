@@ -56,11 +56,6 @@ const WelcomeDialog = () => {
             <div className="flex items-center gap-3 text-sm text-foreground">
               <Link2 className="h-4 w-4 text-primary shrink-0" />
               <span>뉴스 기사 — 링크만 붙여넣기</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-foreground">
-              <Image className="h-4 w-4 text-primary shrink-0" />
-              <span>스크린샷 — 이미지 바로 저장</span>
-            </div>
             <div className="flex items-center gap-3 text-sm text-foreground">
               <Youtube className="h-4 w-4 text-primary shrink-0" />
               <span>유튜브 — 영상 핵심 텍스트로</span>
