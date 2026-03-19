@@ -45,10 +45,7 @@ async function fetchPrice(stock: StockInput): Promise<StockPrice | null> {
     // Determine if domestic or overseas
     const isDomestic = /^\d{6}$/.test(code);
 
-    const priceUrl = isDomestic
-      ? `https://m.stock.naver.com/api/stock/${code}/basic`
-      : `https://m.stock.naver.com/api/stock/${code}/basic`;
-
+    const priceUrl = `https://m.stock.naver.com/api/stock/${code}/basic`;
     const priceRes = await fetch(priceUrl, {
       headers: { "User-Agent": "Mozilla/5.0" },
     });
@@ -56,19 +53,22 @@ async function fetchPrice(stock: StockInput): Promise<StockPrice | null> {
     if (!priceRes.ok) return null;
     const data = await priceRes.json();
 
-    const currentPrice = parseFloat(
-      data?.closePrice || data?.currentPrice || "0"
-    );
-    const changePercent = parseFloat(
-      data?.fluctuationsRatio ||
-        data?.compareToPreviousClosePrice?.ratio ||
-        "0"
-    );
-    const changePrice = parseFloat(
-      data?.compareToPreviousClosePrice?.price ||
-        data?.fluctuationsPrice ||
-        "0"
-    );
+    // Helper to strip commas from price strings
+    const parseNum = (v: string | undefined | null) => parseFloat((v || "0").replace(/,/g, ""));
+
+    // Use after-market price if available and market is closed
+    const overMarket = data?.overMarketPriceInfo;
+    const useOverMarket = overMarket && overMarket.overMarketStatus === "OPEN";
+
+    const currentPrice = useOverMarket
+      ? parseNum(overMarket.overPrice)
+      : parseNum(data?.closePrice);
+    const changePercent = useOverMarket
+      ? parseFloat(overMarket.fluctuationsRatio || "0")
+      : parseFloat(data?.fluctuationsRatio || "0");
+    const changePrice = useOverMarket
+      ? parseNum(overMarket.compareToPreviousClosePrice)
+      : parseNum(data?.compareToPreviousClosePrice);
 
     // Determine currency
     const currency = data?.currencyType === "USD" || !isDomestic ? "$" : "원";
@@ -80,7 +80,7 @@ async function fetchPrice(stock: StockInput): Promise<StockPrice | null> {
       changePercent,
       changePrice,
       currency,
-      marketStatus: data?.marketStatus || "CLOSE",
+      marketStatus: useOverMarket ? "AFTER_MARKET" : (data?.marketStatus || "CLOSE"),
     };
   } catch (e) {
     console.error(`Failed to fetch price for ${stock.name}:`, e);
