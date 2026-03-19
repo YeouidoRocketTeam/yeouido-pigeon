@@ -24,16 +24,25 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
     const fetchMemo = async () => {
       const { data } = await supabase
         .from("insights")
-        .select("memo")
+        .select("memo, updated_at")
         .eq("id", insight.id)
         .single();
       if (!cancelled && data) {
         setMemo(data.memo || "");
+        setInitialMemo(data.memo || "");
+        // Show edited date if memo exists and updated_at differs from created_at by > 1min
+        if (data.memo && data.updated_at) {
+          const updatedTime = new Date(data.updated_at).getTime();
+          const createdTime = new Date(insight.created_at).getTime();
+          if (updatedTime - createdTime > 60000) {
+            setLastEditedAt(data.updated_at);
+          }
+        }
       }
     };
     fetchMemo();
     return () => { cancelled = true; };
-  }, [insight.id]);
+  }, [insight.id, insight.created_at]);
 
   const saveMemo = useCallback(async () => {
     setSaving(true);
