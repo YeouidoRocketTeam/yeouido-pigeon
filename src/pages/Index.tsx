@@ -13,6 +13,7 @@ import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
 import ProjectSidebar from "@/components/ProjectSidebar";
 import SettingsDropdown from "@/components/SettingsDropdown";
+import WelcomeDialog from "@/components/WelcomeDialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type Insight = Database["public"]["Tables"]["insights"]["Row"];
@@ -233,6 +234,7 @@ const Index = () => {
 
       {/* Fixed bottom CTA + Drawer */}
       <AddInsightDialog onAdded={fetchInsights} projectId={selectedProjectId} />
+      <WelcomeDialog />
     </div>
   );
 };
