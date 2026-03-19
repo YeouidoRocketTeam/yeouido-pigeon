@@ -36,7 +36,7 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
   const { toast } = useToast();
   const themes = (insight.themes as string[]) || [];
   const rawStocks = (insight.stocks as any[]) || [];
-  const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "" } : { name: s.name, code: s.code || "" });
+  const stocks = rawStocks.map((s) => typeof s === "string" ? { name: s, code: "", reason: "" } : { name: s.name, code: s.code || "", reason: s.reason || "" });
   const [isFavorited, setIsFavorited] = useState(insight.is_favorited ?? false);
 
   const toggleFavorite = async (e: React.MouseEvent) => {
@@ -152,9 +152,14 @@ const InsightCard = ({ insight, index, onClick, onDeleted }: InsightCardProps) =
                 key={stock.name}
                 href={stock.code ? `https://m.stock.naver.com/domestic/stock/${stock.code}/total` : `https://search.naver.com/search.naver?query=${encodeURIComponent(stock.name)}+주가`}
                 onClick={(e) => e.stopPropagation()}
-                className="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-accent/30 text-accent tabular-nums hover:bg-accent/10 transition-colors"
+                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full tabular-nums transition-colors ${
+                  stock.reason
+                    ? "border border-primary/30 text-primary hover:bg-primary/10"
+                    : "border border-accent/30 text-accent hover:bg-accent/10"
+                }`}
+                title={stock.reason || undefined}
               >
-                {stock.name}
+                {stock.name}{stock.reason && " ✦"}
               </a>
             ))}
             {themes.slice(0, 2).map((theme: string) => (
