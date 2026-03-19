@@ -228,7 +228,7 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
                   신뢰도 = Source(출처·투명성) + Content(데이터·논리) + Context(유효성·공감도)
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  ROC 가중치법 적용 · 각 항목 5개 체크리스트(30/25/20/15/5점 감점) · 최저 5점 보장
+                  ROC 가중치법 적용 · 각 항목 5개 체크리스트(30/25/20/15/10점 감점) · 최저 0점
                 </p>
               </div>
             </div>
