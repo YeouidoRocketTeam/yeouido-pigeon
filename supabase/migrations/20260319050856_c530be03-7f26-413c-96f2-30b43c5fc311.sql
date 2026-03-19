@@ -1,0 +1,1 @@
+UPDATE insights SET source_domain = 'yna.co.kr' WHERE source_domain IN ('연합뉴스', 'Yonhap News Agency', '韩联社（韩国联合通讯社）');
