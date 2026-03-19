@@ -201,7 +201,7 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                   />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {stock.name}
+                      {displayName}
                     </p>
                     <div className="flex items-center gap-2">
                       {stock.code && (
