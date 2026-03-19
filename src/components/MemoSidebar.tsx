@@ -15,36 +15,71 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [lastEditedAt, setLastEditedAt] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [initialMemo, setInitialMemo] = useState(insight.memo || "");
 
   useEffect(() => {
     let cancelled = false;
     const fetchMemo = async () => {
       const { data } = await supabase
         .from("insights")
-        .select("memo")
+        .select("memo, updated_at")
         .eq("id", insight.id)
         .single();
       if (!cancelled && data) {
         setMemo(data.memo || "");
+        setInitialMemo(data.memo || "");
+        // Show edited date if memo exists and updated_at differs from created_at by > 1min
+        if (data.memo && data.updated_at) {
+          const updatedTime = new Date(data.updated_at).getTime();
+          const createdTime = new Date(insight.created_at).getTime();
+          if (updatedTime - createdTime > 60000) {
+            setLastEditedAt(data.updated_at);
+          }
+        }
       }
     };
     fetchMemo();
     return () => { cancelled = true; };
-  }, [insight.id]);
+  }, [insight.id, insight.created_at]);
 
   const saveMemo = useCallback(async () => {
     setSaving(true);
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("insights")
-      .update({ memo })
+      .update({ memo, updated_at: now })
       .eq("id", insight.id);
     setSaving(false);
     if (!error) {
       setSaved(true);
+      setLastEditedAt(now);
+      setInitialMemo(memo);
+      setIsDirty(false);
       setTimeout(() => setSaved(false), 1500);
       onUpdated?.();
     }
   }, [memo, insight.id, onUpdated]);
+
+  const handleMemoChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setMemo(val);
+    setIsDirty(val !== initialMemo);
+  };
+
+  const formatEditedDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const isEditToday = d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+    const datePart = isEditToday
+      ? `오늘 ${d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`
+      : d.toLocaleDateString("ko-KR", { month: "long", day: "numeric" }) +
+        ` ${d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`;
+    return `${datePart}에 수정함`;
+  };
 
   const createdDate = new Date(insight.created_at);
   const isToday = (() => {
@@ -98,7 +133,7 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
           <div className="relative pt-4">
             <textarea
               value={memo}
-              onChange={(e) => setMemo(e.target.value)}
+              onChange={handleMemoChange}
               placeholder="투자 아이디어를 자유롭게 작성하세요"
               rows={8}
               className="w-full bg-transparent border-none outline-none resize-none text-sm text-foreground placeholder:text-muted-foreground/50 p-0"
@@ -112,6 +147,14 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
 
           {/* Save button row */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+            {lastEditedAt && !isDirty && !saving && !saved && (
+              <span className="text-[11px] text-muted-foreground mr-auto">
+                {formatEditedDate(lastEditedAt)}
+              </span>
+            )}
+            {isDirty && !saving && !saved && (
+              <span className="text-[11px] text-muted-foreground mr-auto">수정됨 · 저장 필요</span>
+            )}
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
             {saved && (
               <span className="text-xs text-accent flex items-center gap-1">
