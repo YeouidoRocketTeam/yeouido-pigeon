@@ -147,6 +147,14 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
 
           {/* Save button row */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+            {lastEditedAt && !isDirty && !saving && !saved && (
+              <span className="text-[11px] text-muted-foreground mr-auto">
+                {formatEditedDate(lastEditedAt)}
+              </span>
+            )}
+            {isDirty && !saving && !saved && (
+              <span className="text-[11px] text-muted-foreground mr-auto">수정됨 · 저장 필요</span>
+            )}
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
             {saved && (
               <span className="text-xs text-accent flex items-center gap-1">
