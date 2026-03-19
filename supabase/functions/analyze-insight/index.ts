@@ -314,8 +314,8 @@ serve(async (req) => {
   let parsedInsightId: string | null = null;
   try {
     const body = await req.json();
-    const { insightId: _insightId, url } = body;
-    parsedInsightId = _insightId;
+    const { insightId, url } = body;
+    parsedInsightId = insightId;
 
     if (!insightId || !url) {
       return new Response(
