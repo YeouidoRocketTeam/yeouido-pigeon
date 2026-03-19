@@ -750,6 +750,10 @@ Respond ONLY with the tool call.`,
     // Process detail summary result
     const aiSummaryDetail = detailResult.status === "fulfilled" ? (detailResult.value as string) : "";
 
+    // Compute final overall reliability score
+    const allScores = Object.values(reliabilityDetails).map((d) => d.score);
+    const finalScore = allScores.length > 0 ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 50;
+
     // Preserve original source_domain if already set (e.g., from fetch-subscription)
     const { data: currentInsight } = await supabase.from("insights").select("source_domain").eq("id", insightId).single();
     
