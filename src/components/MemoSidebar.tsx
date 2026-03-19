@@ -133,7 +133,7 @@ const MemoSidebar = ({ insight, onUpdated }: MemoSidebarProps) => {
           <div className="relative pt-4">
             <textarea
               value={memo}
-              onChange={(e) => setMemo(e.target.value)}
+              onChange={handleMemoChange}
               placeholder="투자 아이디어를 자유롭게 작성하세요"
               rows={8}
               className="w-full bg-transparent border-none outline-none resize-none text-sm text-foreground placeholder:text-muted-foreground/50 p-0"
