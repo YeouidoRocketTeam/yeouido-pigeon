@@ -1,16 +1,24 @@
-import { useState } from "react";
-import { Search, X, CalendarSearch } from "lucide-react";
-import { format } from "date-fns";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { Search, X, CalendarSearch, ChevronDown } from "lucide-react";
+import { format, subMonths, startOfMonth, addMonths } from "date-fns";
 import { ko } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DateRange {
   from: Date;
