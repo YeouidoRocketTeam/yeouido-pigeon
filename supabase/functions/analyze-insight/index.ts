@@ -560,10 +560,11 @@ Respond ONLY with the tool call.`,
                       properties: {
                         name: { type: "string", description: "Korean stock name (e.g. 삼성전자)" },
                         code: { type: "string", description: "6-digit Korean stock code (e.g. 005930). Must be the exact KOSPI/KOSDAQ ticker code." },
+                        reason: { type: "string", description: "Why this stock is related. Must include relevance level keyword: include '1순위' or '직접' or '핵심' for stocks directly mentioned in content, include '2순위' or '대표' for top market cap stocks in the theme, include '3순위' or '간접' or '매크로' for supply chain/competitor/macro related stocks." },
                       },
-                      required: ["name", "code"],
+                      required: ["name", "code", "reason"],
                     },
-                    description: "Related Korean stocks with their exact 6-digit stock codes. Max 5.",
+                    description: "Related Korean stocks with their exact 6-digit stock codes and relevance reasons. Max 5.",
                   },
                   investment_sentiment: {
                     type: "string",
