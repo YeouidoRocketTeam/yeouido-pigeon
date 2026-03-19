@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FolderPlus, Folder, Trash2, X, Check, MoreHorizontal, Inbox, Star } from "lucide-react";
+import { FolderPlus, Folder, Trash2, X, Check, MoreHorizontal, Inbox, Star, StickyNote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
