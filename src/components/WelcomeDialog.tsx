@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Link2, Youtube } from "lucide-react";
+import { ExternalLink, Link2, Youtube } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const WelcomeDialog = () => {
@@ -22,7 +22,7 @@ const WelcomeDialog = () => {
       <DialogContent className="sm:max-w-sm mx-auto rounded-2xl p-8 text-center border-0 shadow-2xl [&>button]:hidden">
         <div className="flex flex-col items-center gap-5">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Bookmark className="h-8 w-8 text-primary" />
+            <ExternalLink className="h-8 w-8 text-primary" />
           </div>
 
           <div>
@@ -34,11 +34,11 @@ const WelcomeDialog = () => {
           </div>
 
           <p className="text-sm text-muted-foreground leading-relaxed">
-            놓치기 쉬운 투자 기사나 영상을
+            그동안 저장만해뒀던 투자 정보,
             <br />
-            링크 하나로 저장하면
+            <span className="font-semibold text-foreground">공유</span>하기 버튼 하나로 정리하고
             <br />
-            <span className="font-semibold text-foreground">핵심 내용</span>만 골라서 보여드려요.
+            <span className="font-semibold text-foreground">핵심 내용</span> 받아보세요.
           </p>
 
           <p className="text-sm text-muted-foreground leading-relaxed">
