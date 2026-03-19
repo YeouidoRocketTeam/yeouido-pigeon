@@ -202,21 +202,19 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                     <p className="text-sm font-semibold text-foreground truncate">
                       {stock.name}
                     </p>
-                    {stock.code && (
-                      <p className="text-xs text-muted-foreground">{stock.code}</p>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {stock.code && (
+                        <p className="text-xs text-muted-foreground">{stock.code}</p>
+                      )}
+                      {badge && (
+                        <span
+                          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.className}`}
+                        >
+                          {badge.label}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                {/* Center: relevance badge */}
-                <div className="hidden sm:flex items-center mx-3">
-                  {badge && (
-                    <span
-                      className={`text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap ${badge.className}`}
-                    >
-                      {badge.label}
-                    </span>
-                  )}
                 </div>
 
                 {/* Right: price + change */}
