@@ -310,7 +310,7 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
                         ) : (
                           <>
                             <Zap className="h-5 w-5 mr-2" />
-                            {selectedType === "youtube" ? "영상 분석하기" : "기사 분석하기"}
+                            {selectedType === "youtube" ? "영상 분석하기" : selectedType === "sns" ? "게시물 분석하기" : "기사 분석하기"}
                           </>
                         )}
                       </Button>
