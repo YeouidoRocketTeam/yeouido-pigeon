@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X } from "lucide-react";
+import { Link, Loader2, ChevronRight, Zap, LinkIcon, Image, Youtube, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -144,8 +144,8 @@ const AddInsightDialog = ({ onAdded, projectId, externalOpen, onExternalOpenChan
               onClick={() => setIsOpen(true)}
               className="w-full h-14 text-base font-semibold rounded-2xl text-brand-foreground shadow-lg bg-brand hover:bg-brand/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
-              <Zap className="h-5 w-5" />
-              분석 시작하기
+              <Plus className="h-5 w-5" />
+              콘텐츠 저장하기
             </button>
           </div>
         </div>
