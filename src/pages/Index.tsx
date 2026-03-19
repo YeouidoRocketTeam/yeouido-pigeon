@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { FolderOpen, Bell, Zap } from "lucide-react";
+import { FolderOpen, Bell, Zap, StickyNote } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +8,7 @@ import InsightCard from "@/components/InsightCard";
 import InsightDetail from "@/components/InsightDetail";
 import AddInsightDialog from "@/components/AddInsightDialog";
 import EmptyState from "@/components/EmptyState";
+import MemoCard from "@/components/MemoCard";
 import SkeletonCard from "@/components/SkeletonCard";
 import SubscriptionStories from "@/components/SubscriptionStories";
 import SearchBar from "@/components/SearchBar";
@@ -242,7 +243,14 @@ const Index = () => {
               <p className="text-muted-foreground">"{searchQuery}"에 대한 결과가 없습니다</p>
             </div>
           ) : (
-            <EmptyState />
+            showMemos ? (
+              <div className="text-center py-16">
+                <StickyNote className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-muted-foreground">메모가 작성된 인사이트가 없습니다</p>
+              </div>
+            ) : (
+              <EmptyState />
+            )
           )
         ) : (
           <div className="space-y-8">
@@ -253,13 +261,23 @@ const Index = () => {
                 </h2>
                 <div className="space-y-3">
                   {group.items.map((insight, i) => (
-                    <InsightCard
-                      key={insight.id}
-                      insight={insight}
-                      index={i}
-                      onClick={() => setSelectedInsight(insight)}
-                      onDeleted={fetchInsights}
-                    />
+                    showMemos ? (
+                      <MemoCard
+                        key={insight.id}
+                        insight={insight}
+                        index={i}
+                        onClick={() => setSelectedInsight(insight)}
+                        onDeleted={fetchInsights}
+                      />
+                    ) : (
+                      <InsightCard
+                        key={insight.id}
+                        insight={insight}
+                        index={i}
+                        onClick={() => setSelectedInsight(insight)}
+                        onDeleted={fetchInsights}
+                      />
+                    )
                   ))}
                 </div>
               </div>
