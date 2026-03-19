@@ -223,7 +223,7 @@ const SearchBar = ({ value, onChange, dateRange, onDateRangeChange }: SearchBarP
                   onChange={(d) => setTempTo(d)}
                   isActive={selectingStep === "to"}
                 />
-                <span className="text-[10px] text-muted-foreground/60 ml-1">↕ 스크롤</span>
+                
               </div>
             </div>
 
