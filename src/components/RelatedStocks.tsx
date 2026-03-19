@@ -357,8 +357,10 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
                 href={
                   selected.stock.code
                     ? `https://m.stock.naver.com/domestic/stock/${selected.stock.code}/total`
-                    : `https://search.naver.com/search.naver?query=${encodeURIComponent(selected.stock.name)}+주가`
+                    : `https://search.naver.com/search.naver?query=${encodeURIComponent(selected.stock.code || selected.stock.name)}+주가`
                 }
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-primary-foreground font-bold text-base transition-opacity hover:opacity-90"
                 style={{
                   background: "linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--primary)) 100%)",
