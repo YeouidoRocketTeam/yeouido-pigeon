@@ -730,11 +730,11 @@ Respond ONLY with the tool call.`,
           messages: [
             {
               role: "system",
-              content: "You are a Korean investment content analyst. Generate exactly 3 detailed summary paragraphs from the given content. Each paragraph should be a complete, informative sentence (50-100 characters) that fully explains the key point. Output ONLY 3 lines, one paragraph per line. No numbers, no bullets.",
+              content: "You are a Korean investment content analyst. Write a comprehensive, in-depth analysis of the given investment content in Korean. The analysis should be 4-6 detailed paragraphs, each 150-250 characters long. Cover: key facts and context, market implications, risks and opportunities, and forward-looking outlook. Write in a professional but accessible tone. Output paragraphs separated by newlines. No numbers, no bullets, no headers.",
             },
             {
               role: "user",
-              content: `다음 투자 콘텐츠의 상세 요약을 3개 문장으로 작성해줘. 각 문장은 50~100자 사이로, 핵심 내용을 구체적으로 설명해야 해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 3000)}`,
+              content: `다음 투자 콘텐츠의 상세 분석을 작성해줘. 핵심 사실, 시장 영향, 리스크와 기회, 전망을 포함하여 4~6개 문단으로 깊이 있게 분석해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 5000)}`,
             },
           ],
         }),
