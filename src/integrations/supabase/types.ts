@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      insight_embeddings: {
+        Row: {
+          content_text: string
+          created_at: string
+          embedding: string | null
+          id: string
+          insight_id: string
+          user_id: string
+        }
+        Insert: {
+          content_text: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          insight_id: string
+          user_id: string
+        }
+        Update: {
+          content_text?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          insight_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insight_embeddings_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: true
+            referencedRelation: "insights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       insights: {
         Row: {
           ai_keywords: string | null
@@ -251,7 +286,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_insights: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          insight_id: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
