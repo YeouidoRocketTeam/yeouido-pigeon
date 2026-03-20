@@ -202,7 +202,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                           </p>
                         ))}
                     </div>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
