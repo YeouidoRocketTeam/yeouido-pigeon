@@ -236,12 +236,32 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
             {/* Radar Chart - moved to top */}
             {details && (
               <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">📊 6대 항목 레이더</h3>
-                <ReliabilityRadar
-                  scores={Object.fromEntries(
-                    Object.entries(details).map(([k, v]) => [k, (v as CriterionDetail).score])
+                <button
+                  onClick={() => setRadarExpanded(!radarExpanded)}
+                  className="flex items-center gap-2 w-full text-left"
+                >
+                  <h3 className="text-sm font-semibold text-foreground">📊 6대 항목 레이더</h3>
+                  {radarExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </button>
+                <AnimatePresence>
+                  {radarExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-3">
+                        <ReliabilityRadar
+                          scores={Object.fromEntries(
+                            Object.entries(details).map(([k, v]) => [k, (v as CriterionDetail).score])
+                          )}
+                        />
+                      </div>
+                    </motion.div>
                   )}
-                />
+                </AnimatePresence>
               </div>
             )}
 
