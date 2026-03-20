@@ -171,6 +171,26 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [radarExpanded, setRadarExpanded] = useState(true);
 
   const normalizedScore = score;
+  const [animatedScore, setAnimatedScore] = useState(0);
+  const [barWidth, setBarWidth] = useState(0);
+
+  useState(() => {
+    // Animate bar after mount
+    const barTimer = setTimeout(() => setBarWidth(normalizedScore), 100);
+    // Animate number counting up
+    const duration = 800;
+    const startTime = Date.now() + 100;
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 0) { requestAnimationFrame(tick); return; }
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setAnimatedScore(Math.round(eased * normalizedScore));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    return () => clearTimeout(barTimer);
+  });
 
   return (
     <>
@@ -188,7 +208,7 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           </div>
           <div className="flex items-baseline gap-0.5">
             <span className={`text-3xl font-bold tabular-nums ${getScoreColor(normalizedScore)}`}>
-              {normalizedScore}
+              {animatedScore}
             </span>
             <span className="text-sm text-muted-foreground">/100</span>
           </div>
@@ -196,8 +216,8 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
 
         <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted mb-2">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${getBarColorClass(normalizedScore)}`}
-            style={{ width: `${normalizedScore}%` }}
+            className={`h-full rounded-full transition-all duration-700 ease-out ${getBarColorClass(normalizedScore)}`}
+            style={{ width: `${barWidth}%` }}
           />
         </div>
 
