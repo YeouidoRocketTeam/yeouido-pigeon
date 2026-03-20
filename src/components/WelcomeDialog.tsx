@@ -8,9 +8,7 @@ const WelcomeDialog = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event !== "SIGNED_IN") return;
-
+    const showWelcomeIfNew = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -19,6 +17,15 @@ const WelcomeDialog = () => {
 
       setOpen(true);
       localStorage.setItem(storageKey, "true");
+    };
+
+    // Check on initial load (covers case where signup auto-signs in before listener is ready)
+    showWelcomeIfNew();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        showWelcomeIfNew();
+      }
     });
 
     return () => subscription.unsubscribe();
