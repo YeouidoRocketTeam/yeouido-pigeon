@@ -270,10 +270,10 @@ const RelatedStocks = ({ stocks }: RelatedStocksProps) => {
               {/* Header */}
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <p className="text-lg font-bold text-foreground tabular-nums">
-                    {selected.stock.code || "—"}
+                  <p className="text-lg font-bold text-foreground">
+                    {sp?.name || selected.stock.name}
                   </p>
-                  <p className="text-sm text-muted-foreground">{sp?.name || selected.stock.name}</p>
+                  <p className="text-sm text-muted-foreground tabular-nums">{selected.stock.code || "—"}</p>
                 </div>
                 <DrawerClose asChild>
                   <button className="p-2 rounded-lg hover:bg-muted transition-colors">
