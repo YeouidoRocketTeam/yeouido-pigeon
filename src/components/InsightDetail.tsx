@@ -143,6 +143,20 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           />
         )}
 
+        {/* Themes - between reliability and summary */}
+        {themes.length > 0 && (
+          <div className="mb-6 rounded-xl border bg-card p-5">
+            <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
+            <div className="flex flex-wrap gap-2">
+              {themes.map((theme: string) => (
+                <span key={theme} className="text-sm font-medium px-4 py-1.5 rounded-full bg-primary/10 text-primary">
+                  {theme}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Summary */}
         {insight.ai_summary && (
           <div className="mb-8 rounded-xl border bg-card p-5">
@@ -195,25 +209,11 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         )}
 
-        {/* Sentiment + Themes + Stocks with Memo side-by-side */}
+        {/* Sentiment + Stocks with Memo side-by-side */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
           <div>
             {/* Investment Sentiment */}
             <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
-
-            {/* Themes */}
-            {themes.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
-                <div className="flex flex-wrap gap-2">
-                  {themes.map((theme: string) => (
-                    <span key={theme} className="text-sm font-medium px-4 py-1.5 rounded-full bg-primary/10 text-primary">
-                      {theme}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Stocks */}
             {stocks.length > 0 && (
