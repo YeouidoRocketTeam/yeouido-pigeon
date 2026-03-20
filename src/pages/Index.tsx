@@ -267,7 +267,7 @@ const Index = () => {
             {groupedInsights.map((group) => (
               <div key={group.label}>
                 <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">
-                  {group.label}
+                  {group.label} <span className="text-xs font-normal">({group.items.length}건)</span>
                 </h2>
                 <div className="space-y-3">
                   {group.items.map((insight, i) => (

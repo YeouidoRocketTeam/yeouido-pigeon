@@ -94,6 +94,8 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
       </div>
 
       <div>
+        {/* Title + Sentiment + Articles grouped card */}
+        <div className="rounded-xl border bg-card p-5 mb-6">
         {/* Source */}
         {insight.url ? (
           <a
