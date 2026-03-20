@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Info, Shield, Eye, Database, GitBranch, Clock, CheckCircle2,
   AlertCircle, ChevronDown, ChevronUp, X, Check,
