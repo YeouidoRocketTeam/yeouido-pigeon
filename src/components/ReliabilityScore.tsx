@@ -174,7 +174,7 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [animatedScore, setAnimatedScore] = useState(0);
   const [barWidth, setBarWidth] = useState(0);
 
-  useState(() => {
+  useEffect(() => {
     // Animate bar after mount
     const barTimer = setTimeout(() => setBarWidth(normalizedScore), 100);
     // Animate number counting up
@@ -184,13 +184,13 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
       const elapsed = Date.now() - startTime;
       if (elapsed < 0) { requestAnimationFrame(tick); return; }
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setAnimatedScore(Math.round(eased * normalizedScore));
       if (progress < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
     return () => clearTimeout(barTimer);
-  });
+  }, [normalizedScore]);
 
   return (
     <>
