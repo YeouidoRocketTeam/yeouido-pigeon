@@ -720,11 +720,11 @@ Respond ONLY with the tool call.`,
             messages: [
               {
                 role: "system",
-                content: "You are a Korean investment content analyst. Write a very brief analysis in Korean. Exactly 2-3 paragraphs, each 40-60 characters max. Be extremely concise - one core point per paragraph. No filler. Output paragraphs separated by double newlines (\\n\\n). No numbers, no bullets, no headers.",
+                content: "You are a Korean investment content analyst. Write a concise analysis of the given investment content in Korean. The analysis should be exactly 3-4 short paragraphs, each 80-120 characters long. Cover: (1) key facts and context, (2) market implications, (3) risks and opportunities. Write in a professional but accessible tone. Each paragraph must be concise and impactful - avoid filler words. Output paragraphs separated by double newlines (\\n\\n). No numbers, no bullets, no headers.",
               },
               {
                 role: "user",
-                content: `다음 투자 콘텐츠를 초간결하게 분석해줘. 핵심만 2~3문단, 각 1~2문장으로:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문:\n${pageContent.slice(0, 3000)}`,
+                content: `다음 투자 콘텐츠를 간결하게 분석해줘. 핵심만 담아 3~4개 짧은 문단으로 작성해:\n\n제목: ${pageTitle}\n요약: ${analysis.ai_summary}\n\n원문 내용:\n${pageContent.slice(0, 5000)}`,
               },
             ],
           }),
