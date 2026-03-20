@@ -137,6 +137,13 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           {(insight.original_title || insight.ai_title || "제목 없음").split(":")[0].trim()}
         </h1>
 
+        {/* Investment Sentiment - inside grouped card */}
+        <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+
+        {/* Related Articles - inside grouped card */}
+        <RelatedArticles currentInsight={insight} />
+        </div>{/* end grouped card */}
+
         {/* Reliability */}
         {insight.reliability_score && (
           <ReliabilityScore
@@ -145,7 +152,7 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           />
         )}
 
-        {/* Themes - between reliability and summary */}
+        {/* Themes */}
         {themes.length > 0 && (
           <div className="mb-6 rounded-xl border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
@@ -178,7 +185,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               </button>
             </div>
 
-            {/* Default view: ai_summary (medium-length bullet points) */}
             <ol className="space-y-3">
               {insight.ai_summary.split("\n").filter((s) => s.trim()).map((line, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -190,7 +196,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
               ))}
             </ol>
 
-            {/* Expanded: detailed AI summary */}
             <AnimatePresence>
               {summaryExpanded && (insight as any).ai_summary_detail && (
                 <motion.div
@@ -211,19 +216,12 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         )}
 
-        {/* Sentiment + Stocks with Memo side-by-side */}
+        {/* Stocks + Memo side-by-side */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
           <div>
-            {/* Investment Sentiment */}
-            <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
-
-            {/* Stocks */}
             {stocks.length > 0 && (
               <RelatedStocks stocks={stocks} />
             )}
-
-            {/* Related Articles */}
-            <RelatedArticles currentInsight={insight} />
           </div>
 
           {/* Memo - right side on desktop */}
@@ -233,8 +231,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
             </div>
           </div>
         </div>
-
-
         {/* Disclaimer */}
         <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
           <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
