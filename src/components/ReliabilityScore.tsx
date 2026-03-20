@@ -203,7 +203,7 @@ const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
           <span className={`text-xs font-medium ${getScoreColor(normalizedScore)}`}>
             {getScoreLabel(normalizedScore)}
           </span>
-          <span className="text-xs text-muted-foreground">ROC 가중치 기반 6항목 평가</span>
+          <span className="text-xs text-muted-foreground"></span>
         </div>
 
         {details && (() => {
