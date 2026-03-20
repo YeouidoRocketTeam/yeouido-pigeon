@@ -93,83 +93,70 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
         </div>
       </div>
 
-      <div>
-        {/* Source + Title card */}
-        <div className="rounded-xl border bg-card p-5 mb-4">
-        {insight.url ? (
-          <a
-            href={insight.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mb-4 hover:opacity-70 transition-opacity"
-          >
-            {insight.favicon_url ? (
-              <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
-            ) : (
-              <Globe className="w-5 h-5 text-muted-foreground" />
-            )}
-            <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
-            {insight.source_type && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                {sourceTypeLabels[insight.source_type] || insight.source_type}
-              </span>
-            )}
-          </a>
-        ) : (
-          <div className="flex items-center gap-2 mb-4">
-            {insight.favicon_url ? (
-              <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
-            ) : (
-              <Globe className="w-5 h-5 text-muted-foreground" />
-            )}
-            <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
-            {insight.source_type && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                {sourceTypeLabels[insight.source_type] || insight.source_type}
-              </span>
-            )}
-          </div>
-        )}
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          {(insight.original_title || insight.ai_title || "제목 없음").split(":")[0].trim()}
-        </h1>
-        </div>
-
-        {/* Investment Sentiment card */}
-        <div className="rounded-xl border bg-card p-5 mb-4">
-          <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
-        </div>
-
-        {/* Related Articles card */}
-        <div className="rounded-xl border bg-card p-5 mb-6">
-          <RelatedArticles currentInsight={insight} />
-        </div>
-
-        {/* Reliability */}
-        {insight.reliability_score && (
-          <ReliabilityScore
-            score={insight.reliability_score}
-            details={(insight as any).reliability_details}
-          />
-        )}
-
-        {/* Themes */}
-        {themes.length > 0 && (
-          <div className="mb-6 rounded-xl border bg-card p-5">
-            <h2 className="text-sm font-semibold text-foreground mb-3">관련 테마</h2>
-            <div className="flex flex-wrap gap-2">
+      <div className="space-y-4">
+        {/* 1. Source + Title + Themes card */}
+        <div className="rounded-xl border bg-card p-5">
+          {insight.url ? (
+            <a
+              href={insight.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mb-4 hover:opacity-70 transition-opacity"
+            >
+              {insight.favicon_url ? (
+                <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
+              ) : (
+                <Globe className="w-5 h-5 text-muted-foreground" />
+              )}
+              <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
+              {insight.source_type && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  {sourceTypeLabels[insight.source_type] || insight.source_type}
+                </span>
+              )}
+            </a>
+          ) : (
+            <div className="flex items-center gap-2 mb-4">
+              {insight.favicon_url ? (
+                <img src={insight.favicon_url} alt="" className="w-5 h-5 rounded-sm" />
+              ) : (
+                <Globe className="w-5 h-5 text-muted-foreground" />
+              )}
+              <span className="text-sm text-muted-foreground">{insight.source_domain}</span>
+              {insight.source_type && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  {sourceTypeLabels[insight.source_type] || insight.source_type}
+                </span>
+              )}
+            </div>
+          )}
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            {(insight.original_title || insight.ai_title || "제목 없음").split(":")[0].trim()}
+          </h1>
+          {themes.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
               {themes.map((theme: string) => (
                 <span key={theme} className="text-sm font-medium px-4 py-1.5 rounded-full bg-primary/10 text-primary">
                   {theme}
                 </span>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* 2. Reliability Score card */}
+        {insight.reliability_score && (
+          <div className="rounded-xl border bg-card p-5">
+            <ReliabilityScore
+              score={insight.reliability_score}
+              details={(insight as any).reliability_details}
+            />
           </div>
         )}
 
-        {/* Summary */}
+        {/* 3. AI Summary card */}
         {insight.ai_summary && (
-          <div className="mb-8 rounded-xl border bg-card p-5">
+          <div className="rounded-xl border bg-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -185,7 +172,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 {summaryExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               </button>
             </div>
-
             <ol className="space-y-3">
               {insight.ai_summary.split("\n").filter((s) => s.trim()).map((line, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -196,7 +182,6 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                 </li>
               ))}
             </ol>
-
             <AnimatePresence>
               {summaryExpanded && (insight as any).ai_summary_detail && (
                 <motion.div
@@ -217,19 +202,27 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         )}
 
-        {/* Stocks + Memo side-by-side */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
-          <div>
-            {stocks.length > 0 && (
-              <RelatedStocks stocks={stocks} />
-            )}
-          </div>
+        {/* 4. Investment Sentiment card */}
+        <div className="rounded-xl border bg-card p-5">
+          <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+        </div>
 
-          {/* Memo - right side on desktop */}
-          <div className="hidden lg:block">
-            <div className="sticky top-20">
-              <MemoSidebar insight={insight} onUpdated={onUpdated} />
-            </div>
+        {/* 5. Related Stocks card */}
+        {stocks.length > 0 && (
+          <div className="rounded-xl border bg-card p-5">
+            <RelatedStocks stocks={stocks} />
+          </div>
+        )}
+
+        {/* 6. Related Articles card */}
+        <div className="rounded-xl border bg-card p-5">
+          <RelatedArticles currentInsight={insight} />
+        </div>
+
+        {/* Memo - desktop sidebar */}
+        <div className="hidden lg:block">
+          <div className="sticky top-20">
+            <MemoSidebar insight={insight} onUpdated={onUpdated} />
           </div>
         </div>
         {/* Disclaimer */}
