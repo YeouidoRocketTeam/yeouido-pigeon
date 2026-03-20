@@ -94,9 +94,8 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
       </div>
 
       <div>
-        {/* Title + Sentiment + Articles grouped card */}
-        <div className="rounded-xl border bg-card p-5 mb-6">
-        {/* Source */}
+        {/* Source + Title card */}
+        <div className="rounded-xl border bg-card p-5 mb-4">
         {insight.url ? (
           <a
             href={insight.url}
@@ -131,18 +130,20 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
             )}
           </div>
         )}
-
-        {/* Title */}
-        <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {(insight.original_title || insight.ai_title || "제목 없음").split(":")[0].trim()}
         </h1>
+        </div>
 
-        {/* Investment Sentiment - inside grouped card */}
-        <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+        {/* Investment Sentiment card */}
+        <div className="rounded-xl border bg-card p-5 mb-4">
+          <InvestmentSentiment sentiment={(insight as any).investment_sentiment} />
+        </div>
 
-        {/* Related Articles - inside grouped card */}
-        <RelatedArticles currentInsight={insight} />
-        </div>{/* end grouped card */}
+        {/* Related Articles card */}
+        <div className="rounded-xl border bg-card p-5 mb-6">
+          <RelatedArticles currentInsight={insight} />
+        </div>
 
         {/* Reliability */}
         {insight.reliability_score && (
