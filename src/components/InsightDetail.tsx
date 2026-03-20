@@ -226,11 +226,11 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
           </div>
         </div>
         {/* Disclaimer */}
-        <div className="mt-6 flex items-center gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-          <p className="text-xs text-amber-700">
-            본 분석은 참고용 정보이며,<br className="sm:hidden" />
-            투자 판단의 최종 책임은 사용자에게 있습니다.
+        <div className="mt-6 flex items-start gap-2 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-xs sm:text-sm text-amber-700 leading-relaxed">
+            <span className="inline sm:inline">본 분석은 참고용 정보이며,</span>{" "}
+            <span className="inline sm:inline">투자 판단의 최종 책임은 사용자에게 있습니다.</span>
           </p>
         </div>
 
