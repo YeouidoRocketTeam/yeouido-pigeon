@@ -191,11 +191,17 @@ const InsightDetail = ({ insight, onBack, onDeleted, onUpdated }: InsightDetailP
                   transition={{ duration: 0.25 }}
                   className="overflow-hidden"
                 >
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {((insight as any).ai_summary_detail as string).split("\n").map((s: string) => s.trim()).filter(Boolean).join(" ")}
-                    </p>
-                  </div>
+                    <div className="mt-4 pt-4 border-t border-border space-y-4">
+                      {((insight as any).ai_summary_detail as string)
+                        .split("\n")
+                        .map((s: string) => s.trim())
+                        .filter(Boolean)
+                        .map((paragraph: string, i: number) => (
+                          <p key={i} className="text-sm text-foreground leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                    </div>
                 </motion.div>
               )}
             </AnimatePresence>
