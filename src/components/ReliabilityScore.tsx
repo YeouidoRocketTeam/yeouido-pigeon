@@ -167,6 +167,7 @@ function computeGroupScore(
 
 const ReliabilityScore = ({ score, details }: ReliabilityScoreProps) => {
   const [showModal, setShowModal] = useState(false);
+  const [radarExpanded, setRadarExpanded] = useState(true);
 
   const normalizedScore = score;
 
