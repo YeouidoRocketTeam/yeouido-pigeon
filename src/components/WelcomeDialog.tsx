@@ -8,7 +8,9 @@ const WelcomeDialog = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const checkFirstVisit = async () => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event !== "SIGNED_IN") return;
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -17,12 +19,6 @@ const WelcomeDialog = () => {
 
       setOpen(true);
       localStorage.setItem(storageKey, "true");
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        checkFirstVisit();
-      }
     });
 
     return () => subscription.unsubscribe();
