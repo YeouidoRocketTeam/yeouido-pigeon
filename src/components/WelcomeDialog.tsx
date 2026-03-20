@@ -15,13 +15,8 @@ const WelcomeDialog = () => {
       const storageKey = `welcome_shown_${user.id}`;
       if (localStorage.getItem(storageKey)) return;
 
-      // Check if user was just created (within last 60 seconds)
-      const createdAt = new Date(user.created_at).getTime();
-      const now = Date.now();
-      if (now - createdAt < 60_000) {
-        setOpen(true);
-        localStorage.setItem(storageKey, "true");
-      }
+      setOpen(true);
+      localStorage.setItem(storageKey, "true");
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
